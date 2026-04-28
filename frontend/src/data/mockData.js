@@ -1,7 +1,7 @@
 export const userSeed = {
-  name: "Ananya Rao",
-  email: "ananya.rao@acmeinfra.com",
-  password: "Acme@123",
+  name: "Vani Rani",
+  email: "vani.rani@infoshare.in",
+  password: "VaniRani#134",
   role: "Manager (IT Cell)",
   approved: true,
   emailVerified: true,
