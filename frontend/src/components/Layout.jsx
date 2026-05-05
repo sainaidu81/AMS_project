@@ -1,22 +1,4 @@
-import { Outlet } from "react-router-dom";
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
-
-function Layout() {
-  return (
-    <div className="layout-shell">
-      <Sidebar />
-      <div className="main-shell">
-        <Navbar />
-        <main className="page-shell">
-          <Outlet />
-        </main>
-        <footer className="app-footer">
-          Asset Management System for registration, stock tracking, employee allocation, onboarding, offboarding, and reports.
-        </footer>
-      </div>
-    </div>
-  );
-}
-
-export default Layout;
+// Layout component placeholder.
+// This file is reserved for a shared page layout such as Navbar + Sidebar + main content.
+// When the AMS app grows, common page structure can be placed here to avoid repeating it.
+// Example future use: wrap Dashboard, AssetList, EmployeeList, and Reports with the same layout.

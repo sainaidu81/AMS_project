@@ -1,10 +1,17 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import App from "./App.jsx";
-import "./index.css";
+// Import the React library, which is required for JSX and React.StrictMode.
+import React from "react";
 
-createRoot(document.getElementById("root")).render(
-  <StrictMode>
+// Import ReactDOM's client renderer for mounting React into the HTML page.
+import ReactDOM from "react-dom/client";
+
+// Import the top-level App component.
+import App from "./App";
+
+// Find the <div id="root"></div> element in index.html and create a React root inside it.
+ReactDOM.createRoot(document.getElementById("root")).render(
+  // StrictMode helps identify potential React problems during development.
+  <React.StrictMode>
+    {/* Render the full application inside the root element. */}
     <App />
-  </StrictMode>,
+  </React.StrictMode>
 );

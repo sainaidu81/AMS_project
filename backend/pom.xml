@@ -21,6 +21,11 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.11</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20251224</version>
+        </dependency>
 
         <!-- Dotenv for loading environment variables -->
         <dependency>

@@ -1,129 +1,75 @@
-import SecurityRoundedIcon from "@mui/icons-material/SecurityRounded";
-import VerifiedRoundedIcon from "@mui/icons-material/VerifiedRounded";
-import InventoryRoundedIcon from "@mui/icons-material/InventoryRounded";
+// Import useState so this component can store form input values while the user types.
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { userSeed } from "../data/mockData";
 
-function Login() {
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+// Import the API helper that sends login data to the Java backend.
+import { loginUser } from "../services/api";
 
-  const handleLogin = (event) => {
-    event.preventDefault();
+// Login is the page component shown at the default route "/".
+export default function Login() {
 
-    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
-    const normalizedIdentifier = identifier.trim().toLowerCase();
-    const candidates = [storedUser, userSeed].filter(Boolean);
+  // Store the login form values in React state.
+  const [form, setForm] = useState({
+    // Email starts empty until the user types into the email input.
+    email: "",
 
-    const matchedUser = candidates.find((candidate) => {
-      const matchesIdentity =
-        candidate.name.toLowerCase() === normalizedIdentifier ||
-        candidate.email.toLowerCase() === normalizedIdentifier;
+    // Password starts empty until the user types into the password input.
+    password: ""
+  });
 
-      return matchesIdentity && candidate.password === password && candidate.approved !== false;
+  // Update the correct field in state whenever the user types in an input.
+  const handleChange = (e) => {
+    // Copy the current form values and replace only the field that changed.
+    setForm({
+      // Keep the existing values that did not change.
+      ...form,
+
+      // Use the input's name attribute to decide whether to update email or password.
+      [e.target.name]: e.target.value
     });
-
-    if (matchedUser) {
-      localStorage.setItem("user", JSON.stringify(matchedUser));
-      localStorage.setItem("isLoggedIn", "true");
-      navigate("/dashboard");
-      return;
-    }
-
-    window.alert("Invalid credentials or account not approved yet.");
   };
 
+  // Handle the form submit event when the Login button is clicked.
+  const handleSubmit = async (e) => {
+    // Prevent the browser from refreshing the page after form submission.
+    e.preventDefault();
+
+    try {
+      // Send the current email and password to the backend /login endpoint.
+      const data = await loginUser(form);
+
+      // Show the backend's response message to the user.
+      alert(data.message);
+
+    } catch (err) {
+      // Show the backend error message when login fails.
+      alert(err.message || "Error connecting to backend");
+    }
+  };
+
+  // Return the JSX that renders the login page.
   return (
-    <div className="auth-shell">
-      <section className="auth-panel">
-        <div className="auth-card">
-          <div className="auth-brand">
-            <div className="brand-badge">AH</div>
-            <div>
-              <h1 className="auth-title">Asset Hub</h1>
-              <p className="auth-copy">Sign in to manage stock, onboarding, and reports.</p>
-            </div>
-          </div>
+    // Outer wrapper for the login page content.
+    <div>
+      {/* Page heading shown above the login form. */}
+      <h2>Login Page</h2>
 
-          <form className="auth-form" onSubmit={handleLogin}>
-            <div className="field-group">
-              <label className="field-label" htmlFor="identifier">Name or Email</label>
-              <input
-                id="identifier"
-                className="text-input"
-                type="text"
-                placeholder="Enter your name or work email"
-                value={identifier}
-                onChange={(event) => setIdentifier(event.target.value)}
-                required
-              />
-            </div>
+      {/* Form calls handleSubmit when the user clicks Login or presses Enter. */}
+      <form onSubmit={handleSubmit}>
+        {/* Email input uses name="email" so handleChange updates form.email. */}
+        <input name="email" placeholder="Email" onChange={handleChange} /><br /><br />
 
-            <div className="field-group">
-              <label className="field-label" htmlFor="password">Password</label>
-              <input
-                id="password"
-                className="text-input"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
-            </div>
+        {/* Password input uses type="password" so typed characters are hidden. */}
+        <input name="password" type="password" placeholder="Password" onChange={handleChange} /><br /><br />
 
-            <div className="helper-links">
-              <Link to="/forgot-password">Forgot password?</Link>
-              <span className="meta-copy">Use seeded login: {userSeed.email}</span>
-            </div>
+        {/* Submit button triggers the form's onSubmit handler. */}
+        <button type="submit">Login</button>
+      </form>
 
-            <button type="submit" className="button-primary">Login</button>
-
-            <div className="auth-footer-note">
-              <span>New user registration is approval based.</span>
-              <Link to="/signup">Create account</Link>
-            </div>
-          </form>
-        </div>
-      </section>
-
-      <aside className="auth-hero">
-        <div className="auth-hero-content">
-          <span className="auth-hero-kicker">Lifecycle Control</span>
-          <h2>Track every asset from registration to return.</h2>
-          <p>
-            The portal covers secure login, controlled user access, asset registration,
-            stock visibility, employee allocation, onboarding, offboarding, and reporting.
-          </p>
-          <div className="auth-points">
-            <div className="auth-point">
-              <SecurityRoundedIcon />
-              <div>
-                <strong>Controlled access</strong>
-                <div>Only approved users can enter the system and activate accounts.</div>
-              </div>
-            </div>
-            <div className="auth-point">
-              <InventoryRoundedIcon />
-              <div>
-                <strong>Service tag driven records</strong>
-                <div>Keep inventory searchable by asset type, status, and unique service tag.</div>
-              </div>
-            </div>
-            <div className="auth-point">
-              <VerifiedRoundedIcon />
-              <div>
-                <strong>Immediate visibility</strong>
-                <div>Updates flow into stock views, assignments, and dashboards without friction.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside>
+      {/* Basic navigation link that sends new users to the signup page. */}
+      <p>
+        {/* The href matches the /signup route defined in AppRoutes.jsx. */}
+        Don't have an account? <a href="/signup">Signup</a>
+      </p>
     </div>
   );
 }
-
-export default Login;

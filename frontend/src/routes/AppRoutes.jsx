@@ -1,50 +1,28 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import Layout from "../components/Layout";
-import AssetDetails from "../pages/AssetDetails";
-import AssetList from "../pages/AssetList";
-import AssetRegistration from "../pages/AssetRegistration";
-import Dashboard from "../pages/Dashboard";
-import EmployeeDetails from "../pages/EmployeeDetails";
-import EmployeeList from "../pages/EmployeeList";
-import ForgotPassword from "../pages/ForgotPassword";
+// BrowserRouter enables client-side routing in the browser.
+// Routes groups all route definitions.
+// Route maps a URL path to the component that should render.
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// Import the Login page shown at the default route.
 import Login from "../pages/Login";
-import Offboarding from "../pages/Offboarding";
-import Onboarding from "../pages/Onboarding";
-import Reports from "../pages/Reports";
+
+// Import the Signup page shown at /signup.
 import Signup from "../pages/Signup";
-import ProtectedRoute from "./ProtectedRoute";
 
-function AppRoutes() {
+// AppRoutes stores all frontend route definitions in one place.
+export default function AppRoutes() {
+  // Return the router setup used by the whole React application.
   return (
+    // BrowserRouter watches the URL and renders the matching route without a full page reload.
     <BrowserRouter>
+      {/* Routes contains every path/component mapping for the app. */}
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
+        {/* Default route: visiting http://localhost:5173/ shows Login. */}
+        <Route path="/" element={<Login />} />
+
+        {/* Signup route: visiting http://localhost:5173/signup shows Signup. */}
         <Route path="/signup" element={<Signup />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-
-        <Route
-          element={(
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          )}
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/assets/register" element={<AssetRegistration />} />
-          <Route path="/assets" element={<AssetList />} />
-          <Route path="/assets/:serviceTag" element={<AssetDetails />} />
-          <Route path="/employees" element={<EmployeeList />} />
-          <Route path="/employees/:employeeId" element={<EmployeeDetails />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/offboarding" element={<Offboarding />} />
-          <Route path="/reports" element={<Reports />} />
-        </Route>
-
-        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
   );
 }
-
-export default AppRoutes;
