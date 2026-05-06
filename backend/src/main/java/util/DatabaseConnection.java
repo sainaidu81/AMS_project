@@ -2,14 +2,11 @@
 package util;
 
 // Dotenv loads secrets and configuration values from the backend/.env file.
-import io.github.cdimascio.dotenv.Dotenv;
-
-// Connection represents an active JDBC database connection.
 import java.sql.Connection;
-// DriverManager opens JDBC connections using the URL, username, and password.
 import java.sql.DriverManager;
-// SQLException is thrown when database connection or query operations fail.
 import java.sql.SQLException;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 // DatabaseConnection centralizes all Supabase PostgreSQL connection settings.
 public class DatabaseConnection {
@@ -43,6 +40,13 @@ public class DatabaseConnection {
         // Fail early with a clear message if the .env password is missing.
         if (PASSWORD == null || PASSWORD.isBlank()) {
             throw new SQLException("SUPABASE_DB_PASSWORD is missing in .env");
+        }
+
+        // Load the PostgreSQL JDBC driver. [due to the error jdbc driver not found]
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("PostgreSQL JDBC driver not found", e);
         }
 
         // Create the actual JDBC connection using the URL, username, and password.
