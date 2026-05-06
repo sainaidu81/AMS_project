@@ -5,6 +5,8 @@ package controller;
 import com.sun.net.httpserver.HttpExchange;
 // HttpHandler is implemented by classes that handle Java HTTP server endpoints.
 import com.sun.net.httpserver.HttpHandler;
+// BCrypt hashes the plain password before it is stored in the database.
+import org.mindrot.jbcrypt.BCrypt;
 // JSONObject is used to parse JSON sent from the frontend signup form.
 import org.json.JSONObject;
 // DatabaseConnection opens JDBC connections to the Supabase PostgreSQL database.
@@ -61,8 +63,12 @@ public class RegisterHandler implements HttpHandler {
             String email = json.getString("email");
 
             // Read the password entered during signup.
-            // Note: this is currently saved directly; later it should be hashed before insert.
+            // This starts as plain text only inside the request and should never be stored as-is.
             String password = json.getString("password");
+
+            // Convert the plain password into a BCrypt hash before writing anything to the database.
+            // BCrypt automatically generates a salt and stores salt + cost factor inside the final hash.
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
             // Option A flow: all self-registered users start as normal employees.
             // The frontend is not allowed to choose admin or it_manager during signup.
@@ -114,9 +120,8 @@ public class RegisterHandler implements HttpHandler {
             // Bind email to the second SQL placeholder.
             ps.setString(2, email);
 
-            // Bind password to password_hash.
-            // In production, this should be a hashed value instead of the raw password.
-            ps.setString(3, password);
+            // Store the BCrypt hash in password_hash instead of the original plain password.
+            ps.setString(3, hashedPassword);
 
             // Bind the fixed role value, currently always "employee".
             ps.setString(4, role);

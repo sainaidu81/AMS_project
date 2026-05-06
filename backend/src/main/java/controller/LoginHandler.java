@@ -5,6 +5,8 @@ package controller;
 import com.sun.net.httpserver.HttpExchange;
 // HttpHandler is the interface Java's HTTP server calls for each request.
 import com.sun.net.httpserver.HttpHandler;
+// BCrypt verifies a plain password against the stored BCrypt hash from the database.
+import org.mindrot.jbcrypt.BCrypt;
 // JSONObject is used to parse the JSON body sent by the frontend.
 import org.json.JSONObject;
 // DatabaseConnection provides a JDBC connection to the Supabase PostgreSQL DB.
@@ -60,9 +62,9 @@ public class LoginHandler implements HttpHandler {
             // Open a connection to the Supabase PostgreSQL database.
             Connection con = DatabaseConnection.getConnection();
 
-            // Query the users table for an active account with matching email and password.
-            // Note: password_hash currently stores the plain password; later this should use BCrypt.
-            String query = "SELECT * FROM users WHERE email = ? AND password_hash = ? AND is_active = true";
+            // Fetch the active user by email first.
+            // With BCrypt, login cannot compare raw password text in SQL because the stored hash includes a salt.
+            String query = "SELECT password_hash FROM users WHERE email = ? AND is_active = true";
 
             // Prepare the SQL statement safely with placeholders instead of string concatenation.
             PreparedStatement ps = con.prepareStatement(query);
@@ -70,24 +72,34 @@ public class LoginHandler implements HttpHandler {
             // Bind the email value to the first ? in the SQL query.
             ps.setString(1, email);
 
-            // Bind the password value to the second ? in the SQL query.
-            ps.setString(2, password);
-
             // Execute the SELECT query and receive matching rows, if any.
             ResultSet rs = ps.executeQuery();
 
             // Store the JSON message that will be sent back to the frontend.
             String response;
 
-            // rs.next() is true when the database found a matching active user.
+            // rs.next() is true when the database found an active user for this email.
             if (rs.next()) {
-                // Build a success JSON response.
-                response = "{\"message\":\"Login successful\"}";
+                // Read the stored BCrypt hash from the password_hash column.
+                String storedHash = rs.getString("password_hash");
 
-                // Send HTTP 200 to show the login request succeeded.
-                HttpUtils.sendJson(exchange, 200, response);
+                // Compare the plain password from the form with the stored BCrypt hash.
+                // BCrypt.checkpw handles the embedded salt automatically, so the user can type the normal password.
+                if (storedHash != null && BCrypt.checkpw(password, storedHash)) {
+                    // Build a success JSON response when the password matches the stored hash.
+                    response = "{\"message\":\"Login successful\"}";
+
+                    // Send HTTP 200 to show the login request succeeded.
+                    HttpUtils.sendJson(exchange, 200, response);
+                } else {
+                    // Build a failure JSON response when the password does not match the stored hash.
+                    response = "{\"message\":\"Invalid credentials\"}";
+
+                    // Send HTTP 401 to show the user is not authenticated.
+                    HttpUtils.sendJson(exchange, 401, response);
+                }
             } else {
-                // Build a failure JSON response when credentials do not match.
+                // Build a failure JSON response when the email does not belong to an active user.
                 response = "{\"message\":\"Invalid credentials\"}";
 
                 // Send HTTP 401 to show the user is not authenticated.

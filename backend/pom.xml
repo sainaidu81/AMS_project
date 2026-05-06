@@ -27,6 +27,13 @@
             <version>20251224</version>
         </dependency>
 
+        <!-- jBCrypt hashes passwords during signup and verifies them during login -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
+        </dependency>
+
         <!-- Dotenv for loading environment variables -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
