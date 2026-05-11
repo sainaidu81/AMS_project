@@ -18,9 +18,20 @@ import util.HttpUtils;
 import java.io.IOException;
 // java.sql.* imports Connection, PreparedStatement, ResultSet, and SQL exceptions.
 import java.sql.*;
+// Pattern is used for a practical backend email format check before querying the database.
+import java.util.regex.Pattern;
 
 // LoginHandler processes requests sent to the /login endpoint.
 public class LoginHandler implements HttpHandler {
+
+    // This email pattern intentionally checks the practical shape used by most login systems.
+    // It rejects missing @, missing domain, missing dot in the domain, and whitespace.
+    // The frontend uses the same kind of check for UX, but this backend check is the enforcement point.
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+
+    // Login should not enforce password complexity because existing passwords may follow older policies.
+    // This limit is an abuse guard to reject unusually large request bodies before BCrypt work happens.
+    private static final int MAX_PASSWORD_LENGTH = 128;
 
     // The Java HTTP server calls handle() whenever /login receives a request.
     @Override
@@ -53,11 +64,38 @@ public class LoginHandler implements HttpHandler {
                 return;
             }
 
-            // Extract the email typed in the login form.
-            String email = json.getString("email");
+            // Extract and trim the email typed in the login form.
+            // Trimming email is safe because leading/trailing spaces are not meaningful in this app.
+            String email = json.getString("email").trim();
 
             // Extract the password typed in the login form.
+            // Do not trim passwords: a leading or trailing space could be part of the user's real password.
             String password = json.getString("password");
+
+            // Enforce backend validation before doing any database lookup.
+            // The frontend also checks this to guide users, but API callers can bypass the frontend completely.
+            if (email.isEmpty()) {
+                HttpUtils.sendJson(exchange, 400, "{\"message\":\"Email is required\"}");
+                return;
+            }
+
+            // Reject emails that do not have the normal user@domain.tld shape.
+            if (!EMAIL_PATTERN.matcher(email).matches()) {
+                HttpUtils.sendJson(exchange, 400, "{\"message\":\"Invalid email format\"}");
+                return;
+            }
+
+            // Login requires a password, but complexity rules belong to password creation/reset flows.
+            if (password.isEmpty()) {
+                HttpUtils.sendJson(exchange, 400, "{\"message\":\"Password is required\"}");
+                return;
+            }
+
+            // Reject unusually long passwords before running BCrypt to avoid unnecessary expensive work.
+            if (password.length() > MAX_PASSWORD_LENGTH) {
+                HttpUtils.sendJson(exchange, 400, "{\"message\":\"Password is too long\"}");
+                return;
+            }
 
             // Open a connection to the Supabase PostgreSQL database.
             Connection con = DatabaseConnection.getConnection();

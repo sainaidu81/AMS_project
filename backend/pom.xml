@@ -27,7 +27,7 @@
             <version>20251224</version>
         </dependency>
 
-        <!-- jBCrypt hashes passwords during signup and verifies them during login -->
+        <!-- jBCrypt verifies login passwords against stored hashes -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>

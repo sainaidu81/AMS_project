@@ -43,7 +43,7 @@ public final class HttpUtils {
             return true;
         }
 
-        // Return false for normal requests such as POST /login or POST /register.
+        // Return false for normal requests such as POST /login.
         return false;
     }
 

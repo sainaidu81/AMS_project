@@ -2,9 +2,6 @@
 import com.sun.net.httpserver.HttpServer;
 // Import the handler class that processes /login API requests.
 import controller.LoginHandler;
-// Import the handler class that processes /register API requests.
-import controller.RegisterHandler;
-
 // Import the class used to bind the server to a host/port combination.
 import java.net.InetSocketAddress;
 
@@ -17,10 +14,6 @@ public class Main {
         // Create an HTTP server that listens on local port 8081.
         // The second argument is the backlog size; 0 means Java uses the default.
         HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
-
-        // Connect the /register URL path to RegisterHandler.
-        // Any POST request to http://localhost:8081/register is handled there.
-        server.createContext("/register", new RegisterHandler());
 
         // Connect the /login URL path to LoginHandler.
         // Any POST request to http://localhost:8081/login is handled there.

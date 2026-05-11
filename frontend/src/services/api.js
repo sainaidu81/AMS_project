@@ -17,26 +17,6 @@ const parseResponse = async (response) => {
   return data;
 };
 
-// Send signup data to the backend REGISTER API.
-export const registerUser = async (userData) => {
-  // Send a POST request to http://localhost:8081/register.
-  const response = await fetch(`${BASE_URL}/register`, {
-    // POST is used because registration data is sent in the request body.
-    method: "POST",
-
-    // Tell the backend that the request body is JSON.
-    headers: {
-      "Content-Type": "application/json"
-    },
-
-    // Convert the JavaScript form object into a JSON string.
-    body: JSON.stringify(userData)
-  });
-
-  // Parse the backend response and throw an error if the backend returned failure.
-  return parseResponse(response);
-};
-
 // Send login data to the backend LOGIN API.
 export const loginUser = async (userData) => {
   // Send a POST request to http://localhost:8081/login.
