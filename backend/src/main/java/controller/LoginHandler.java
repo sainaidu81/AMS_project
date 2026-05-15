@@ -100,9 +100,22 @@ public class LoginHandler implements HttpHandler {
             // Open a connection to the Supabase PostgreSQL database.
             Connection con = DatabaseConnection.getConnection();
 
-            // Fetch the active user by email first.
+            // Fetch the user account plus the linked employee row.
+            // is_active now belongs to employees, so login checks employee activity through the join.
             // With BCrypt, login cannot compare raw password text in SQL because the stored hash includes a salt.
-            String query = "SELECT password_hash FROM users WHERE email = ? AND is_active = true";
+            String query = """
+                    SELECT
+                        u.employee_id,
+                        u.email,
+                        u.role,
+                        u.password_hash,
+                        e.full_name,
+                        e.department,
+                        e.designation
+                    FROM users u
+                    JOIN employees e ON e.employee_id = u.employee_id
+                    WHERE u.email = ? AND e.is_active = true
+                    """;
 
             // Prepare the SQL statement safely with placeholders instead of string concatenation.
             PreparedStatement ps = con.prepareStatement(query);
@@ -125,7 +138,20 @@ public class LoginHandler implements HttpHandler {
                 // BCrypt.checkpw handles the embedded salt automatically, so the user can type the normal password.
                 if (storedHash != null && BCrypt.checkpw(password, storedHash)) {
                     // Build a success JSON response when the password matches the stored hash.
-                    response = "{\"message\":\"Login successful\"}";
+                    // The frontend needs these user details to decide which dashboard/options to show.
+                    JSONObject user = new JSONObject();
+                    user.put("employee_id", rs.getString("employee_id"));
+                    user.put("full_name", rs.getString("full_name"));
+                    user.put("email", rs.getString("email"));
+                    user.put("role", rs.getString("role"));
+                    user.put("department", rs.getString("department"));
+                    user.put("designation", rs.getString("designation"));
+
+                    JSONObject success = new JSONObject();
+                    success.put("message", "Login successful");
+                    success.put("user", user);
+
+                    response = success.toString();
 
                     // Send HTTP 200 to show the login request succeeded.
                     HttpUtils.sendJson(exchange, 200, response);
