@@ -1,6 +1,13 @@
 // Import useState so this component can store form input values while the user types.
 import { useState } from "react";
 
+// Import Material UI icons that match the new login design without adding react-icons as a new dependency.
+import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
+import LaptopMacRoundedIcon from "@mui/icons-material/LaptopMacRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
+import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
+
 // Import the API helper that sends login data to the Java backend.
 import { loginUser } from "../services/api";
 
@@ -26,6 +33,9 @@ export default function Login() {
 
   // Store a validation message that is shown before the API call when the form has obvious mistakes.
   const [error, setError] = useState("");
+
+  // Store whether the password field should show plain text or hidden dots.
+  const [showPassword, setShowPassword] = useState(false);
 
   // Validate only the login form basics on the frontend.
   // Frontend validation improves the user's experience, but it can be bypassed, so the backend repeats it.
@@ -102,53 +112,85 @@ export default function Login() {
     }
   };
 
+  // Show the office-specific password recovery instruction instead of exposing account signup/reset logic.
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    alert("Please contact your AMS administrator to reset your password.");
+  };
+
   // Return the JSX that renders the login page.
   return (
-    // Outer wrapper for the login page content.
-    <div>
-      {/* Page heading shown above the login form. */}
-      <h2>Login Page</h2>
+    // login-page owns the full-screen background so these styles do not leak into dashboard pages later.
+    <div className="login-page">
+      {/* Glass-style login card based on the provided design. */}
+      <div className="login-box">
+        {/* Brand block shown above the form. */}
+        <div className="login-logo">
+          <LaptopMacRoundedIcon fontSize="inherit" />
+          <h1>AMS Login</h1>
+          <p>Asset Management System</p>
+        </div>
 
-      {/* Form calls handleSubmit when the user clicks Login or presses Enter. */}
-      <form onSubmit={handleSubmit}>
-        {/* Email input uses name="email" so handleChange updates form.email. */}
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-        /><br /><br />
+        {/* Form calls handleSubmit when the user clicks Login or presses Enter. */}
+        <form onSubmit={handleSubmit} noValidate>
+          {/* Email field: frontend validates basic shape, backend validates again before database lookup. */}
+          <div className="input-box">
+            <EmailRoundedIcon className="left-icon" fontSize="small" />
+            <input
+              name="email"
+              type="email"
+              placeholder="Enter Email"
+              value={form.email}
+              onChange={handleChange}
+              autoComplete="email"
+            />
+          </div>
 
-        {/* Password input uses type="password" so typed characters are hidden. */}
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-        /><br /><br />
+          {/* Password field: value is not trimmed because spaces can be part of a real password. */}
+          <div className="input-box">
+            <LockRoundedIcon className="left-icon" fontSize="small" />
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Enter Password"
+              value={form.password}
+              onChange={handleChange}
+              autoComplete="current-password"
+            />
 
-        {/* Show frontend validation feedback before the backend request is sent. */}
-        {error && <p role="alert">{error}</p>}
+            {/* Toggle only changes visibility; it never changes the password value itself. */}
+            <button
+              type="button"
+              className="toggle-password"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <VisibilityOffRoundedIcon fontSize="small" />
+              ) : (
+                <VisibilityRoundedIcon fontSize="small" />
+              )}
+            </button>
+          </div>
 
-        {/* Submit button triggers the form's onSubmit handler. */}
-        <button type="submit">Login</button>
-      </form>
+          {/* Show frontend validation feedback before the backend request is sent. */}
+          {error && <p className="login-error" role="alert">{error}</p>}
 
-      {/* Password recovery guidance for office-managed accounts. */}
-      <p>
-        Did you forget your password?{" "}
-        <a
-          href="#forgot-password"
-          onClick={(e) => {
-            e.preventDefault();
-            alert("Please contact your AMS administrator to reset your password.");
-          }}
-        >
-          Forgot password
-        </a>
-      </p>
+          {/* Password recovery guidance for office-managed accounts. */}
+          <div className="login-options">
+            <a href="#forgot-password" onClick={handleForgotPassword}>
+              Forgot Password?
+            </a>
+          </div>
+
+          {/* Submit button triggers the form's onSubmit handler. */}
+          <button className="login-button" type="submit">Login</button>
+        </form>
+
+        <div className="login-footer">
+          &copy; 2026 Asset Management System
+        </div>
+      </div>
     </div>
   );
 }
