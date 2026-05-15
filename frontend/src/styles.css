@@ -98,6 +98,14 @@ body {
   color: #dbeafe;
   cursor: pointer;
 }
+.toggle-password svg {
+  display: block;
+  top: 50%;
+  transform: translateY(-50%);
+  align-items: center;
+  justify-content: center;
+
+}
 
 .toggle-password:hover,
 .toggle-password:focus {
