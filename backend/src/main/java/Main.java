@@ -1,5 +1,7 @@
 import com.sun.net.httpserver.HttpServer;
+import controller.EmployeesHandler;
 import controller.LoginHandler;
+import controller.UsersHandler;
 import java.net.InetSocketAddress;
 
 /**
@@ -16,6 +18,8 @@ public class Main {
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8081), 0);
         server.createContext("/login", new LoginHandler());
+        server.createContext("/employees", new EmployeesHandler());
+        server.createContext("/users", new UsersHandler());
         server.start();
         System.out.println("Server started on port 8081");
     }

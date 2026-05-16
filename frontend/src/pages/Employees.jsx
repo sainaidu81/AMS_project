@@ -1,9 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+
+import {
+  createEmployee,
+  deleteEmployee,
+  getEmployees,
+  updateEmployee
+} from "../services/api";
 
 const EMPTY_FORM = {
   employee_id: "",
@@ -15,30 +22,61 @@ const EMPTY_FORM = {
   is_active: true
 };
 
-const INITIAL_EMPLOYEES = [
-  {
-    employee_id: "EMP-001",
-    full_name: "Admin User",
-    department: "Administration",
-    designation: "System Admin",
-    mobile_number: "",
-    address: "",
-    is_active: true
-  }
-];
-
 /**
- * Frontend-only admin employee management screen.
+ * Admin employee management screen backed by the employees API.
  *
  * @returns {JSX.Element} the employees management page
  */
 export default function Employees() {
-  const [employees, setEmployees] = useState(INITIAL_EMPLOYEES);
+  const [employees, setEmployees] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
-  const [editIndex, setEditIndex] = useState(null);
+  const [editingEmployeeId, setEditingEmployeeId] = useState(null);
   const [error, setError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [actionError, setActionError] = useState("");
+
+  const loadEmployees = async () => {
+    setIsLoading(true);
+    setLoadError("");
+
+    try {
+      const data = await getEmployees();
+      setEmployees(data.employees || []);
+    } catch (err) {
+      setLoadError(err.message || "Could not load employees.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let shouldUpdate = true;
+
+    getEmployees()
+      .then((data) => {
+        if (shouldUpdate) {
+          setEmployees(data.employees || []);
+        }
+      })
+      .catch((err) => {
+        if (shouldUpdate) {
+          setLoadError(err.message || "Could not load employees.");
+        }
+      })
+      .finally(() => {
+        if (shouldUpdate) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      shouldUpdate = false;
+    };
+  }, []);
 
   const filteredEmployees = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -69,19 +107,34 @@ export default function Employees() {
 
   const openAddForm = () => {
     setForm(EMPTY_FORM);
-    setEditIndex(null);
+    setEditingEmployeeId(null);
+    setError("");
+    setShowForm(true);
+  };
+
+  const openEditForm = (employee) => {
+    setForm({
+      employee_id: employee.employee_id,
+      full_name: employee.full_name,
+      department: employee.department,
+      designation: employee.designation,
+      mobile_number: employee.mobile_number || "",
+      address: employee.address || "",
+      is_active: employee.is_active
+    });
+    setEditingEmployeeId(employee.employee_id);
     setError("");
     setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false);
-    setEditIndex(null);
+    setEditingEmployeeId(null);
     setForm(EMPTY_FORM);
     setError("");
   };
 
-  const saveEmployee = () => {
+  const saveEmployee = async () => {
     const normalizedForm = {
       ...form,
       employee_id: form.employee_id.trim(),
@@ -102,39 +155,41 @@ export default function Employees() {
       return;
     }
 
-    if (editIndex !== null) {
-      const updatedEmployees = [...employees];
-      updatedEmployees[editIndex] = normalizedForm;
-      setEmployees(updatedEmployees);
-    } else {
-      setEmployees([...employees, normalizedForm]);
-    }
+    setIsSaving(true);
 
-    closeForm();
-  };
+    try {
+      if (editingEmployeeId) {
+        await updateEmployee(editingEmployeeId, normalizedForm);
+      } else {
+        await createEmployee(normalizedForm);
+      }
 
-  const editEmployee = (index) => {
-    setForm(employees[index]);
-    setEditIndex(index);
-    setError("");
-    setShowForm(true);
-  };
-
-  const deleteEmployee = (index) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this employee?");
-
-    if (confirmDelete) {
-      setEmployees(employees.filter((_, employeeIndex) => employeeIndex !== index));
+      await loadEmployees();
+      closeForm();
+    } catch (err) {
+      setError(err.message || "Could not save employee.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const updateActiveStatus = (index, isActive) => {
-    const updatedEmployees = [...employees];
-    updatedEmployees[index] = {
-      ...updatedEmployees[index],
-      is_active: isActive
-    };
-    setEmployees(updatedEmployees);
+  const handleDeleteEmployee = async (employee) => {
+    const confirmDelete = window.confirm(
+      `Deactivate ${employee.full_name} and remove their user credentials?`
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    setActionError("");
+
+    try {
+      await deleteEmployee(employee.employee_id);
+      await loadEmployees();
+    } catch (err) {
+      setActionError(err.message || "Could not deactivate employee.");
+    }
   };
 
   return (
@@ -163,6 +218,8 @@ export default function Employees() {
         </label>
       </div>
 
+      {actionError && <p className="form-error">{actionError}</p>}
+
       <div className="table-card">
         <table className="admin-table employees-table">
           <thead>
@@ -174,15 +231,22 @@ export default function Employees() {
               <th>Mobile Number</th>
               <th>Address</th>
               <th>Status</th>
+              <th>Created At</th>
               <th>Actions</th>
             </tr>
           </thead>
 
           <tbody>
-            {filteredEmployees.map((employee) => {
-              const realIndex = employees.indexOf(employee);
+            {isLoading && (
+              <tr>
+                <td className="empty-table" colSpan="9">
+                  Loading employees...
+                </td>
+              </tr>
+            )}
 
-              return (
+            {!isLoading &&
+              filteredEmployees.map((employee) => (
                 <tr key={employee.employee_id}>
                   <td>{employee.employee_id}</td>
                   <td>{employee.full_name}</td>
@@ -191,24 +255,17 @@ export default function Employees() {
                   <td>{employee.mobile_number || "-"}</td>
                   <td>{employee.address || "-"}</td>
                   <td>
-                    <select
-                      className="status-select"
-                      value={String(employee.is_active)}
-                      onChange={(event) =>
-                        updateActiveStatus(realIndex, event.target.value === "true")
-                      }
-                      aria-label={`Set status for ${employee.full_name}`}
-                    >
-                      <option value="true">Active</option>
-                      <option value="false">Inactive</option>
-                    </select>
+                    <span className={employee.is_active ? "status-pill active" : "status-pill"}>
+                      {employee.is_active ? "Active" : "Inactive"}
+                    </span>
                   </td>
+                  <td>{employee.created_at || "-"}</td>
                   <td>
                     <div className="row-actions">
                       <button
                         className="icon-action edit-action"
                         type="button"
-                        onClick={() => editEmployee(realIndex)}
+                        onClick={() => openEditForm(employee)}
                         aria-label={`Edit ${employee.full_name}`}
                         title="Edit"
                       >
@@ -218,21 +275,28 @@ export default function Employees() {
                       <button
                         className="icon-action delete-action"
                         type="button"
-                        onClick={() => deleteEmployee(realIndex)}
+                        onClick={() => handleDeleteEmployee(employee)}
                         aria-label={`Delete ${employee.full_name}`}
-                        title="Delete"
+                        title="Deactivate employee"
                       >
                         <DeleteRoundedIcon fontSize="small" />
                       </button>
                     </div>
                   </td>
                 </tr>
-              );
-            })}
+              ))}
 
-            {filteredEmployees.length === 0 && (
+            {!isLoading && loadError && (
               <tr>
-                <td className="empty-table" colSpan="8">
+                <td className="empty-table error-text" colSpan="9">
+                  {loadError}
+                </td>
+              </tr>
+            )}
+
+            {!isLoading && !loadError && filteredEmployees.length === 0 && (
+              <tr>
+                <td className="empty-table" colSpan="9">
                   No employees match your search.
                 </td>
               </tr>
@@ -244,7 +308,7 @@ export default function Employees() {
       {showForm && (
         <div className="modal-backdrop" role="presentation">
           <div className="modal-panel employee-modal" role="dialog" aria-modal="true">
-            <h2>{editIndex !== null ? "Edit Employee" : "Add Employee"}</h2>
+            <h2>{editingEmployeeId ? "Edit Employee" : "Add Employee"}</h2>
 
             <div className="form-grid">
               <label>
@@ -253,6 +317,7 @@ export default function Employees() {
                   name="employee_id"
                   value={form.employee_id}
                   onChange={handleChange}
+                  disabled={Boolean(editingEmployeeId)}
                 />
               </label>
 
@@ -308,8 +373,13 @@ export default function Employees() {
               <button className="secondary-action" type="button" onClick={closeForm}>
                 Cancel
               </button>
-              <button className="primary-action" type="button" onClick={saveEmployee}>
-                {editIndex !== null ? "Update" : "Save"}
+              <button
+                className="primary-action"
+                type="button"
+                onClick={saveEmployee}
+                disabled={isSaving}
+              >
+                {isSaving ? "Saving..." : editingEmployeeId ? "Update" : "Save"}
               </button>
             </div>
           </div>
