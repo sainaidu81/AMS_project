@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import EmailRoundedIcon from "@mui/icons-material/EmailRounded";
 import LaptopMacRoundedIcon from "@mui/icons-material/LaptopMacRounded";
@@ -12,12 +13,17 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const MAX_PASSWORD_LENGTH = 128;
 
+const ROLE_DASHBOARD_ROUTES = {
+  admin: "/admin/dashboard"
+};
+
 /**
  * Renders the login form and submits credentials to the backend.
  *
  * @returns {JSX.Element} the login page
  */
 export default function Login() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     email: "",
     password: ""
@@ -88,7 +94,16 @@ export default function Login() {
         password: form.password
       });
 
-      alert(data.message);
+      const role = data.user?.role;
+      const dashboardRoute = ROLE_DASHBOARD_ROUTES[role];
+
+      if (!dashboardRoute) {
+        setError("Login successful, but no dashboard is configured for this role.");
+        return;
+      }
+
+      sessionStorage.setItem("amsUser", JSON.stringify(data.user));
+      navigate(dashboardRoute, { replace: true });
     } catch (err) {
       alert(err.message || "Error connecting to backend");
     }
