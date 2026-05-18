@@ -13,10 +13,6 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const MAX_PASSWORD_LENGTH = 128;
 
-const ROLE_DASHBOARD_ROUTES = {
-  admin: "/admin/dashboard"
-};
-
 /**
  * Renders the login form and submits credentials to the backend.
  *
@@ -94,8 +90,7 @@ export default function Login() {
         password: form.password
       });
 
-      const role = data.user?.role;
-      const dashboardRoute = ROLE_DASHBOARD_ROUTES[role];
+      const dashboardRoute = data.dashboardPath;
 
       if (!dashboardRoute) {
         setError("Login successful, but no dashboard is configured for this role.");

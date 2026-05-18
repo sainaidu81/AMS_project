@@ -1,9 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import Layout from "../components/Layout";
+import { AdminDataProvider } from "../context/AdminDataContext";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import Employees from "../pages/Employees";
+import RoleDashboard from "../pages/RoleDashboard";
 import Users from "../pages/Users";
 
 const getStoredUser = () => {
@@ -42,7 +44,9 @@ export default function AppRoutes() {
           path="/admin"
           element={
             <RequireRole role="admin">
-              <Layout />
+              <AdminDataProvider>
+                <Layout />
+              </AdminDataProvider>
             </RequireRole>
           }
         >
@@ -51,6 +55,22 @@ export default function AppRoutes() {
           <Route path="employees" element={<Employees />} />
           <Route path="users" element={<Users />} />
         </Route>
+        <Route
+          path="/it/dashboard"
+          element={
+            <RequireRole role="it_manager">
+              <RoleDashboard title="IT Manager Dashboard" />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/employee/dashboard"
+          element={
+            <RequireRole role="employee">
+              <RoleDashboard title="Employee Dashboard" />
+            </RequireRole>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

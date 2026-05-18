@@ -27,6 +27,21 @@ public class LoginHandler implements HttpHandler {
     private static final int MAX_PASSWORD_LENGTH = 128;
 
     /**
+     * Maps a database role to the dashboard route the frontend should open after login.
+     *
+     * @param role the role stored in the users table
+     * @return the dashboard route for the role
+     */
+    private static String dashboardPathForRole(String role) {
+        return switch (role) {
+            case "admin" -> "/admin/dashboard";
+            case "it_manager" -> "/it/dashboard";
+            case "employee" -> "/employee/dashboard";
+            default -> "";
+        };
+    }
+
+    /**
      * Validates login input, checks the stored password hash, and returns a JSON response.
      *
      * @param exchange the HTTP request/response exchange for the current login attempt
@@ -102,13 +117,21 @@ public class LoginHandler implements HttpHandler {
                     user.put("employee_id", rs.getString("employee_id"));
                     user.put("full_name", rs.getString("full_name"));
                     user.put("email", rs.getString("email"));
-                    user.put("role", rs.getString("role"));
+                    String role = rs.getString("role");
+                    user.put("role", role);
                     user.put("department", rs.getString("department"));
                     user.put("designation", rs.getString("designation"));
+
+                    String dashboardPath = dashboardPathForRole(role);
+                    if (dashboardPath.isEmpty()) {
+                        HttpUtils.sendJson(exchange, 403, "{\"message\":\"No dashboard is configured for this role\"}");
+                        return;
+                    }
 
                     JSONObject success = new JSONObject();
                     success.put("message", "Login successful");
                     success.put("user", user);
+                    success.put("dashboardPath", dashboardPath);
 
                     response = success.toString();
                     HttpUtils.sendJson(exchange, 200, response);

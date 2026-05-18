@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
+import useAdminData from "../context/useAdminData";
 import {
   createEmployee,
   deleteEmployee,
-  getEmployees,
   updateEmployee
 } from "../services/api";
 
@@ -28,55 +28,19 @@ const EMPTY_FORM = {
  * @returns {JSX.Element} the employees management page
  */
 export default function Employees() {
-  const [employees, setEmployees] = useState([]);
+  const {
+    employees,
+    employeesLoading,
+    employeesError,
+    refreshAdminData
+  } = useAdminData();
   const [form, setForm] = useState(EMPTY_FORM);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingEmployeeId, setEditingEmployeeId] = useState(null);
   const [error, setError] = useState("");
-  const [loadError, setLoadError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [actionError, setActionError] = useState("");
-
-  const loadEmployees = async () => {
-    setIsLoading(true);
-    setLoadError("");
-
-    try {
-      const data = await getEmployees();
-      setEmployees(data.employees || []);
-    } catch (err) {
-      setLoadError(err.message || "Could not load employees.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let shouldUpdate = true;
-
-    getEmployees()
-      .then((data) => {
-        if (shouldUpdate) {
-          setEmployees(data.employees || []);
-        }
-      })
-      .catch((err) => {
-        if (shouldUpdate) {
-          setLoadError(err.message || "Could not load employees.");
-        }
-      })
-      .finally(() => {
-        if (shouldUpdate) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      shouldUpdate = false;
-    };
-  }, []);
 
   const filteredEmployees = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -164,7 +128,7 @@ export default function Employees() {
         await createEmployee(normalizedForm);
       }
 
-      await loadEmployees();
+      await refreshAdminData();
       closeForm();
     } catch (err) {
       setError(err.message || "Could not save employee.");
@@ -186,7 +150,7 @@ export default function Employees() {
 
     try {
       await deleteEmployee(employee.employee_id);
-      await loadEmployees();
+      await refreshAdminData();
     } catch (err) {
       setActionError(err.message || "Could not deactivate employee.");
     }
@@ -237,7 +201,7 @@ export default function Employees() {
           </thead>
 
           <tbody>
-            {isLoading && (
+            {employeesLoading && (
               <tr>
                 <td className="empty-table" colSpan="9">
                   Loading employees...
@@ -245,7 +209,7 @@ export default function Employees() {
               </tr>
             )}
 
-            {!isLoading &&
+            {!employeesLoading &&
               filteredEmployees.map((employee) => (
                 <tr key={employee.employee_id}>
                   <td>{employee.employee_id}</td>
@@ -286,15 +250,15 @@ export default function Employees() {
                 </tr>
               ))}
 
-            {!isLoading && loadError && (
+            {!employeesLoading && employeesError && (
               <tr>
                 <td className="empty-table error-text" colSpan="9">
-                  {loadError}
+                  {employeesError}
                 </td>
               </tr>
             )}
 
-            {!isLoading && !loadError && filteredEmployees.length === 0 && (
+            {!employeesLoading && !employeesError && filteredEmployees.length === 0 && (
               <tr>
                 <td className="empty-table" colSpan="9">
                   No employees match your search.

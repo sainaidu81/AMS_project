@@ -284,6 +284,12 @@ body {
   font-size: 32px;
 }
 
+.dashboard-card .loading-count,
+.dashboard-card .dashboard-card-text {
+  font-size: 18px;
+  line-height: 1.35;
+}
+
 .users-page,
 .employees-page,
 .page-heading {

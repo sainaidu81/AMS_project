@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
-import { createUser, deleteUser, getUsers, updateUser } from "../services/api";
+import useAdminData from "../context/useAdminData";
+import { createUser, deleteUser, updateUser } from "../services/api";
 
 const EMPTY_FORM = {
   employee_id: "",
@@ -27,55 +28,19 @@ const ROLE_OPTIONS = [
  * @returns {JSX.Element} the users management page
  */
 export default function Users() {
-  const [users, setUsers] = useState([]);
+  const {
+    users,
+    usersLoading,
+    usersError,
+    refreshUsers
+  } = useAdminData();
   const [form, setForm] = useState(EMPTY_FORM);
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingUserId, setEditingUserId] = useState(null);
-  const [loadError, setLoadError] = useState("");
   const [formError, setFormError] = useState("");
   const [actionError, setActionError] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  const loadUsers = async () => {
-    setIsLoading(true);
-    setLoadError("");
-
-    try {
-      const data = await getUsers();
-      setUsers(data.users || []);
-    } catch (err) {
-      setLoadError(err.message || "Could not load users.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    let shouldUpdate = true;
-
-    getUsers()
-      .then((data) => {
-        if (shouldUpdate) {
-          setUsers(data.users || []);
-        }
-      })
-      .catch((err) => {
-        if (shouldUpdate) {
-          setLoadError(err.message || "Could not load users.");
-        }
-      })
-      .finally(() => {
-        if (shouldUpdate) {
-          setIsLoading(false);
-        }
-      });
-
-    return () => {
-      shouldUpdate = false;
-    };
-  }, []);
 
   const filteredUsers = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -156,7 +121,7 @@ export default function Users() {
         await createUser(normalizedForm);
       }
 
-      await loadUsers();
+      await refreshUsers();
       closeForm();
     } catch (err) {
       setFormError(err.message || "Could not save user.");
@@ -176,7 +141,7 @@ export default function Users() {
 
     try {
       await deleteUser(user.employee_id);
-      await loadUsers();
+      await refreshUsers();
     } catch (err) {
       setActionError(err.message || "Could not delete user.");
     }
@@ -229,7 +194,7 @@ export default function Users() {
           </thead>
 
           <tbody>
-            {isLoading && (
+            {usersLoading && (
               <tr>
                 <td className="empty-table" colSpan="7">
                   Loading users...
@@ -237,7 +202,7 @@ export default function Users() {
               </tr>
             )}
 
-            {!isLoading &&
+            {!usersLoading &&
               filteredUsers.map((user) => (
                 <tr key={`${user.employee_id}-${user.email}`}>
                   <td>{user.employee_id}</td>
@@ -274,15 +239,15 @@ export default function Users() {
                 </tr>
               ))}
 
-            {!isLoading && loadError && (
+            {!usersLoading && usersError && (
               <tr>
                 <td className="empty-table error-text" colSpan="7">
-                  {loadError}
+                  {usersError}
                 </td>
               </tr>
             )}
 
-            {!isLoading && !loadError && filteredUsers.length === 0 && (
+            {!usersLoading && !usersError && filteredUsers.length === 0 && (
               <tr>
                 <td className="empty-table" colSpan="7">
                   No users match your search.
