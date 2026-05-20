@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 
+import useAdminData from "../context/useAdminData";
 import {
   createAsset,
   deleteAsset,
-  getAssets,
   updateAsset
 } from "../services/api";
 
@@ -51,9 +51,12 @@ const searchableAssetValues = (asset) => [
  * @returns {JSX.Element} the assets management page
  */
 export default function AssetList() {
-  const [assets, setAssets] = useState([]);
-  const [assetsLoading, setAssetsLoading] = useState(true);
-  const [assetsError, setAssetsError] = useState("");
+  const {
+    assets,
+    assetsLoading,
+    assetsError,
+    refreshAdminData
+  } = useAdminData();
   const [search, setSearch] = useState("");
   const [form, setForm] = useState(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
@@ -61,24 +64,6 @@ export default function AssetList() {
   const [formError, setFormError] = useState("");
   const [actionError, setActionError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-
-  const loadAssets = useCallback(async () => {
-    setAssetsLoading(true);
-    setAssetsError("");
-
-    try {
-      const data = await getAssets();
-      setAssets(data.assets || []);
-    } catch (err) {
-      setAssetsError(err.message || "Could not load assets.");
-    } finally {
-      setAssetsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadAssets();
-  }, [loadAssets]);
 
   const filteredAssets = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -169,7 +154,7 @@ export default function AssetList() {
         await createAsset(normalizedForm);
       }
 
-      await loadAssets();
+      await refreshAdminData();
       closeForm();
     } catch (err) {
       setFormError(err.message || "Could not save asset.");
@@ -189,7 +174,7 @@ export default function AssetList() {
 
     try {
       await deleteAsset(asset.service_tag);
-      await loadAssets();
+      await refreshAdminData();
     } catch (err) {
       setActionError(err.message || "Could not delete asset.");
     }

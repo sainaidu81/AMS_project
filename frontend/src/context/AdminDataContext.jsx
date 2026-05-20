@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import AdminDataContext from "./AdminDataStore";
-import { getEmployees, getUsers } from "../services/api";
+import { getAssets, getEmployees, getUsers } from "../services/api";
 
 /**
- * Provides cached admin data shared by dashboard, employees, and users pages.
+ * Provides cached admin data shared by dashboard, employees, users, and assets pages.
  *
  * @param {{children: React.ReactNode}} props provider props
  * @returns {JSX.Element} the admin data provider
@@ -12,10 +12,13 @@ import { getEmployees, getUsers } from "../services/api";
 export function AdminDataProvider({ children }) {
   const [employees, setEmployees] = useState([]);
   const [users, setUsers] = useState([]);
+  const [assets, setAssets] = useState([]);
   const [employeesLoading, setEmployeesLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(true);
+  const [assetsLoading, setAssetsLoading] = useState(true);
   const [employeesError, setEmployeesError] = useState("");
   const [usersError, setUsersError] = useState("");
+  const [assetsError, setAssetsError] = useState("");
 
   const refreshEmployees = useCallback(async () => {
     setEmployeesLoading(true);
@@ -45,18 +48,33 @@ export function AdminDataProvider({ children }) {
     }
   }, []);
 
+  const refreshAssets = useCallback(async () => {
+    setAssetsLoading(true);
+    setAssetsError("");
+
+    try {
+      const data = await getAssets();
+      setAssets(data.assets || []);
+    } catch (err) {
+      setAssetsError(err.message || "Could not load assets.");
+    } finally {
+      setAssetsLoading(false);
+    }
+  }, []);
+
   const refreshAdminData = useCallback(async () => {
-    await Promise.all([refreshEmployees(), refreshUsers()]);
-  }, [refreshEmployees, refreshUsers]);
+    await Promise.all([refreshEmployees(), refreshUsers(), refreshAssets()]);
+  }, [refreshEmployees, refreshUsers, refreshAssets]);
 
   useEffect(() => {
     let shouldUpdate = true;
 
-    Promise.all([getEmployees(), getUsers()])
-      .then(([employeeData, userData]) => {
+    Promise.all([getEmployees(), getUsers(), getAssets()])
+      .then(([employeeData, userData, assetData]) => {
         if (shouldUpdate) {
           setEmployees(employeeData.employees || []);
           setUsers(userData.users || []);
+          setAssets(assetData.assets || []);
         }
       })
       .catch((err) => {
@@ -64,12 +82,14 @@ export function AdminDataProvider({ children }) {
           const message = err.message || "Could not load admin data.";
           setEmployeesError(message);
           setUsersError(message);
+          setAssetsError(message);
         }
       })
       .finally(() => {
         if (shouldUpdate) {
           setEmployeesLoading(false);
           setUsersLoading(false);
+          setAssetsLoading(false);
         }
       });
 
@@ -82,23 +102,31 @@ export function AdminDataProvider({ children }) {
     () => ({
       employees,
       users,
+      assets,
       employeesLoading,
       usersLoading,
+      assetsLoading,
       employeesError,
       usersError,
+      assetsError,
       refreshEmployees,
       refreshUsers,
+      refreshAssets,
       refreshAdminData
     }),
     [
       employees,
       users,
+      assets,
       employeesLoading,
       usersLoading,
+      assetsLoading,
       employeesError,
       usersError,
+      assetsError,
       refreshEmployees,
       refreshUsers,
+      refreshAssets,
       refreshAdminData
     ]
   );
