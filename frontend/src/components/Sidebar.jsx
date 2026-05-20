@@ -22,6 +22,7 @@ export default function Sidebar() {
       <NavLink to="/admin/dashboard">Dashboard</NavLink>
       <NavLink to="/admin/employees">Employees</NavLink>
       <NavLink to="/admin/users">Users</NavLink>
+      <NavLink to="/admin/assets">Assets</NavLink>
 
       <button className="logout-btn" type="button" onClick={handleLogout}>
         Logout

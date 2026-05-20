@@ -292,6 +292,7 @@ body {
 
 .users-page,
 .employees-page,
+.assets-page,
 .page-heading {
   min-width: 0;
 }
@@ -392,6 +393,10 @@ body {
   min-width: 1040px;
 }
 
+.assets-table {
+  min-width: 1580px;
+}
+
 .users-table th,
 .admin-table th {
   padding: 12px;
@@ -479,6 +484,26 @@ body {
   color: #166534;
 }
 
+.asset-status.available {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.asset-status.assigned {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.asset-status.maintenance {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.asset-status.retired {
+  background: #e5e7eb;
+  color: #374151;
+}
+
 .error-text {
   color: #b91c1c;
 }
@@ -504,6 +529,10 @@ body {
 
 .employee-modal {
   width: min(100%, 720px);
+}
+
+.asset-modal {
+  width: min(100%, 760px);
 }
 
 .modal-panel h2 {

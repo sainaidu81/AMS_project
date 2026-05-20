@@ -158,3 +158,65 @@ export const deleteUser = async (employeeId) => {
 
   return parseResponse(response);
 };
+
+/**
+ * Fetches all assets from the backend.
+ *
+ * @returns {Promise<object>} the assets response
+ */
+export const getAssets = async () => {
+  const response = await fetch(`${BASE_URL}/assets`);
+
+  return parseResponse(response);
+};
+
+/**
+ * Creates an asset record through the backend.
+ *
+ * @param {object} assetData the asset form data
+ * @returns {Promise<object>} the created asset response
+ */
+export const createAsset = async (assetData) => {
+  const response = await fetch(`${BASE_URL}/assets`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(assetData)
+  });
+
+  return parseResponse(response);
+};
+
+/**
+ * Updates an existing asset record.
+ *
+ * @param {string} serviceTag the service tag to update
+ * @param {object} assetData the asset form data
+ * @returns {Promise<object>} the updated asset response
+ */
+export const updateAsset = async (serviceTag, assetData) => {
+  const response = await fetch(`${BASE_URL}/assets/${encodeURIComponent(serviceTag)}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(assetData)
+  });
+
+  return parseResponse(response);
+};
+
+/**
+ * Deletes an asset record.
+ *
+ * @param {string} serviceTag the service tag to delete
+ * @returns {Promise<object>} the delete response
+ */
+export const deleteAsset = async (serviceTag) => {
+  const response = await fetch(`${BASE_URL}/assets/${encodeURIComponent(serviceTag)}`, {
+    method: "DELETE"
+  });
+
+  return parseResponse(response);
+};
