@@ -1,9 +1,9 @@
 -- =========================================
 -- Asset Management System
--- PostgreSQL Combined Schema Script
+-- PostgreSQL Combined Schema Script (Live DB Match)
 -- =========================================
 
--- Optional cleanup order if re-running manually:
+-- Cleanup (Optional, for re-running)
 -- DROP TABLE IF EXISTS asset_update_history CASCADE;
 -- DROP TABLE IF EXISTS asset_assignments CASCADE;
 -- DROP TABLE IF EXISTS users CASCADE;
@@ -22,9 +22,9 @@ CREATE TABLE employees (
     designation VARCHAR(100) NOT NULL,
     mobile_number VARCHAR(20),
     address TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE assets (
@@ -57,13 +57,15 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_users_employee
         FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE asset_assignments (
     id SERIAL PRIMARY KEY,
     service_tag VARCHAR(50) NOT NULL,
     employee_id VARCHAR(50) NOT NULL,
-    issued_by_emp_id VARCHAR(50) NOT NULL,
+    issued_by_emp_id VARCHAR(50),
     issued_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     host_name VARCHAR(150),
     return_date TIMESTAMP NULL,
@@ -74,28 +76,40 @@ CREATE TABLE asset_assignments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_assignment_asset
-        FOREIGN KEY (service_tag) REFERENCES assets(service_tag),
+        FOREIGN KEY (service_tag) REFERENCES assets(service_tag)
+        ON DELETE NO ACTION
+        ON UPDATE CASCADE,
     CONSTRAINT fk_assignment_employee
-        FOREIGN KEY (employee_id) REFERENCES employees(employee_id),
+        FOREIGN KEY (employee_id) REFERENCES employees(employee_id)
+        ON DELETE NO ACTION
+        ON UPDATE CASCADE,
     CONSTRAINT fk_assignment_issued_by
-        FOREIGN KEY (issued_by_emp_id) REFERENCES employees(employee_id),
+        FOREIGN KEY (issued_by_emp_id) REFERENCES employees(employee_id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
     CONSTRAINT fk_assignment_return_by
         FOREIGN KEY (return_by_emp_id) REFERENCES employees(employee_id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE asset_update_history (
     id SERIAL PRIMARY KEY,
     service_tag VARCHAR(50) NOT NULL,
-    updated_by_emp_id VARCHAR(50) NOT NULL,
+    updated_by_emp_id VARCHAR(50),
     field_changed VARCHAR(100) NOT NULL,
     old_value VARCHAR(255),
     new_value VARCHAR(255),
     change_note TEXT,
     changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_update_asset
-        FOREIGN KEY (service_tag) REFERENCES assets(service_tag),
+        FOREIGN KEY (service_tag) REFERENCES assets(service_tag)
+        ON DELETE NO ACTION
+        ON UPDATE CASCADE,
     CONSTRAINT fk_update_employee
         FOREIGN KEY (updated_by_emp_id) REFERENCES employees(employee_id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
 );
 
 -- =========================================
