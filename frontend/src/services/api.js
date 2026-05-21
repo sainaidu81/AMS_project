@@ -1,5 +1,11 @@
 const BASE_URL = "http://localhost:8081";
 
+const getAuthHeaders = () => {
+  const token = sessionStorage.getItem("amsToken");
+
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 /**
  * Parses a backend response and throws a message-bearing error for failed requests.
  *
@@ -11,6 +17,11 @@ const parseResponse = async (response) => {
   const data = await response.json();
 
   if (!response.ok) {
+    if (response.status === 401) {
+      sessionStorage.removeItem("amsUser");
+      sessionStorage.removeItem("amsToken");
+    }
+
     throw new Error(data.message || "Request failed");
   }
 
@@ -41,7 +52,9 @@ export const loginUser = async (userData) => {
  * @returns {Promise<object>} the employees response
  */
 export const getEmployees = async () => {
-  const response = await fetch(`${BASE_URL}/employees`);
+  const response = await fetch(`${BASE_URL}/employees`, {
+    headers: getAuthHeaders()
+  });
 
   return parseResponse(response);
 };
@@ -56,7 +69,8 @@ export const createEmployee = async (employeeData) => {
   const response = await fetch(`${BASE_URL}/employees`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      ...getAuthHeaders()
     },
     body: JSON.stringify(employeeData)
   });
@@ -75,7 +89,8 @@ export const updateEmployee = async (employeeId, employeeData) => {
   const response = await fetch(`${BASE_URL}/employees/${encodeURIComponent(employeeId)}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      ...getAuthHeaders()
     },
     body: JSON.stringify(employeeData)
   });
@@ -91,7 +106,8 @@ export const updateEmployee = async (employeeId, employeeData) => {
  */
 export const deleteEmployee = async (employeeId) => {
   const response = await fetch(`${BASE_URL}/employees/${encodeURIComponent(employeeId)}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: getAuthHeaders()
   });
 
   return parseResponse(response);
@@ -103,7 +119,9 @@ export const deleteEmployee = async (employeeId) => {
  * @returns {Promise<object>} the users response
  */
 export const getUsers = async () => {
-  const response = await fetch(`${BASE_URL}/users`);
+  const response = await fetch(`${BASE_URL}/users`, {
+    headers: getAuthHeaders()
+  });
 
   return parseResponse(response);
 };
@@ -118,7 +136,8 @@ export const createUser = async (userData) => {
   const response = await fetch(`${BASE_URL}/users`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      ...getAuthHeaders()
     },
     body: JSON.stringify(userData)
   });
@@ -137,7 +156,8 @@ export const updateUser = async (employeeId, userData) => {
   const response = await fetch(`${BASE_URL}/users/${encodeURIComponent(employeeId)}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      ...getAuthHeaders()
     },
     body: JSON.stringify(userData)
   });
@@ -153,7 +173,8 @@ export const updateUser = async (employeeId, userData) => {
  */
 export const deleteUser = async (employeeId) => {
   const response = await fetch(`${BASE_URL}/users/${encodeURIComponent(employeeId)}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: getAuthHeaders()
   });
 
   return parseResponse(response);
@@ -165,7 +186,9 @@ export const deleteUser = async (employeeId) => {
  * @returns {Promise<object>} the assets response
  */
 export const getAssets = async () => {
-  const response = await fetch(`${BASE_URL}/assets`);
+  const response = await fetch(`${BASE_URL}/assets`, {
+    headers: getAuthHeaders()
+  });
 
   return parseResponse(response);
 };
@@ -180,7 +203,8 @@ export const createAsset = async (assetData) => {
   const response = await fetch(`${BASE_URL}/assets`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      ...getAuthHeaders()
     },
     body: JSON.stringify(assetData)
   });
@@ -199,7 +223,8 @@ export const updateAsset = async (serviceTag, assetData) => {
   const response = await fetch(`${BASE_URL}/assets/${encodeURIComponent(serviceTag)}`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      ...getAuthHeaders()
     },
     body: JSON.stringify(assetData)
   });
@@ -215,7 +240,8 @@ export const updateAsset = async (serviceTag, assetData) => {
  */
 export const deleteAsset = async (serviceTag) => {
   const response = await fetch(`${BASE_URL}/assets/${encodeURIComponent(serviceTag)}`, {
-    method: "DELETE"
+    method: "DELETE",
+    headers: getAuthHeaders()
   });
 
   return parseResponse(response);

@@ -5,6 +5,7 @@ import com.sun.net.httpserver.HttpHandler;
 import org.mindrot.jbcrypt.BCrypt;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import util.AuthUtils;
 import util.DatabaseConnection;
 import util.HttpUtils;
 
@@ -37,6 +38,10 @@ public class UsersHandler implements HttpHandler {
         String method = exchange.getRequestMethod();
 
         try {
+            if (AuthUtils.requireAnyRole(exchange, "admin", "it_manager") == null) {
+                return;
+            }
+
             if (method.equalsIgnoreCase("GET")) {
                 listUsers(exchange);
                 return;

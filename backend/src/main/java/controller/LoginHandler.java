@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.mindrot.jbcrypt.BCrypt;
 import org.json.JSONObject;
+import util.AuthUtils;
 import util.DatabaseConnection;
 import util.HttpUtils;
 
@@ -131,6 +132,7 @@ public class LoginHandler implements HttpHandler {
                     JSONObject success = new JSONObject();
                     success.put("message", "Login successful");
                     success.put("user", user);
+                    success.put("token", AuthUtils.issueToken(rs.getString("employee_id")));
                     success.put("dashboardPath", dashboardPath);
 
                     response = success.toString();

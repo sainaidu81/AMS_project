@@ -13,6 +13,7 @@ export default function Sidebar() {
 
     if (confirmLogout) {
       sessionStorage.removeItem("amsUser");
+      sessionStorage.removeItem("amsToken");
       navigate("/", { replace: true });
     }
   };

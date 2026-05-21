@@ -19,8 +19,9 @@ const getStoredUser = () => {
 
 const RequireRole = ({ role, children }) => {
   const user = getStoredUser();
+  const token = sessionStorage.getItem("amsToken");
 
-  if (!user) {
+  if (!user || !token) {
     return <Navigate to="/" replace />;
   }
 

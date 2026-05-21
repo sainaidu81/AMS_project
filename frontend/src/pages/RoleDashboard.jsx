@@ -21,6 +21,7 @@ export default function RoleDashboard({ title }) {
 
   const handleLogout = () => {
     sessionStorage.removeItem("amsUser");
+    sessionStorage.removeItem("amsToken");
     navigate("/", { replace: true });
   };
 

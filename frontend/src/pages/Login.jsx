@@ -98,6 +98,7 @@ export default function Login() {
       }
 
       sessionStorage.setItem("amsUser", JSON.stringify(data.user));
+      sessionStorage.setItem("amsToken", data.token);
       navigate(dashboardRoute, { replace: true });
     } catch (err) {
       alert(err.message || "Error connecting to backend");
