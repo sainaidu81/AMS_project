@@ -246,3 +246,70 @@ export const deleteAsset = async (serviceTag) => {
 
   return parseResponse(response);
 };
+
+/**
+ * Fetches all asset assignments from the backend.
+ *
+ * @returns {Promise<object>} the asset assignments response
+ */
+export const getAssetAssignments = async () => {
+  const response = await fetch(`${BASE_URL}/asset_assignments`, {
+    headers: getAuthHeaders()
+  });
+
+  return parseResponse(response);
+};
+
+/**
+ * Creates an asset assignment through the backend.
+ *
+ * @param {object} assignmentData the assignment form data
+ * @returns {Promise<object>} the created assignment response
+ */
+export const createAssetAssignment = async (assignmentData) => {
+  const response = await fetch(`${BASE_URL}/asset_assignments`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders()
+    },
+    body: JSON.stringify(assignmentData)
+  });
+
+  return parseResponse(response);
+};
+
+/**
+ * Updates an existing asset assignment.
+ *
+ * @param {number|string} id the assignment id to update
+ * @param {object} assignmentData the assignment form data
+ * @returns {Promise<object>} the updated assignment response
+ */
+export const updateAssetAssignment = async (id, assignmentData) => {
+  const response = await fetch(`${BASE_URL}/asset_assignments/${encodeURIComponent(id)}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders()
+    },
+    body: JSON.stringify(assignmentData)
+  });
+
+  return parseResponse(response);
+};
+
+/**
+ * Deletes an asset assignment.
+ *
+ * @param {number|string} id the assignment id to delete
+ * @returns {Promise<object>} the delete response
+ */
+export const deleteAssetAssignment = async (id) => {
+  const response = await fetch(`${BASE_URL}/asset_assignments/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: getAuthHeaders()
+  });
+
+  return parseResponse(response);
+};

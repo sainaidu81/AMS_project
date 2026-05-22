@@ -4,6 +4,7 @@ import Layout from "../components/Layout";
 import { AdminDataProvider } from "../context/AdminDataContext";
 import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
+import AssetAssignmentsList from "../pages/AssetAssignmentsList";
 import AssetList from "../pages/AssetList";
 import Employees from "../pages/Employees";
 import RoleDashboard from "../pages/RoleDashboard";
@@ -57,6 +58,7 @@ export default function AppRoutes() {
           <Route path="employees" element={<Employees />} />
           <Route path="users" element={<Users />} />
           <Route path="assets" element={<AssetList />} />
+          <Route path="asset_assignments" element={<AssetAssignmentsList />} />
         </Route>
         <Route
           path="/it/dashboard"

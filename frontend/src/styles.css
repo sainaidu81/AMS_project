@@ -725,6 +725,7 @@ body {
 .users-page,
 .employees-page,
 .assets-page,
+.asset-assignments-page,
 .page-heading {
   min-width: 0;
 }
@@ -830,6 +831,10 @@ body {
 
 .assets-table {
   min-width: 1580px;
+}
+
+.asset-assignments-table {
+  min-width: 1860px;
 }
 
 .users-table th,
@@ -973,6 +978,10 @@ body {
 }
 
 .asset-modal {
+  width: min(100%, 760px);
+}
+
+.assignment-modal {
   width: min(100%, 760px);
 }
 

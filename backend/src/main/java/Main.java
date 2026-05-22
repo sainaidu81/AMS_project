@@ -1,4 +1,5 @@
 import com.sun.net.httpserver.HttpServer;
+import controller.AssetsAssignmentsHandler;
 import controller.AssetsHandler;
 import controller.EmployeesHandler;
 import controller.LoginHandler;
@@ -22,6 +23,8 @@ public class Main {
         server.createContext("/employees", new EmployeesHandler());
         server.createContext("/users", new UsersHandler());
         server.createContext("/assets", new AssetsHandler());
+        server.createContext("/asset_assignments", new AssetsAssignmentsHandler());
+        server.createContext("/assets_assignements", new AssetsAssignmentsHandler());
         server.start();
         System.out.println("Server started on port 8081");
     }

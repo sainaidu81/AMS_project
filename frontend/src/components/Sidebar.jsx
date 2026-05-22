@@ -37,14 +37,7 @@ export default function Sidebar({ isOpen = true }) {
   };
 
   return (
-    <aside className={`sidebar-container ${!isOpen ? 'sidebar-closed' : ''}`}>
-      {/* 1. White Top Header Section */}
-      <div className="sidebar-logo-header">
-        <div className="logo-icon">
-          <div className="hexagon-logo"></div>
-        </div>
-        <span className="brand-text">AMS Portal</span>
-      </div>
+(Add Asset_assignmnets)
 
       {/* 2. Dark Blue Navigation Section */}
       <div className="sidebar-dark-body">
