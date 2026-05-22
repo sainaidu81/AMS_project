@@ -1,34 +1,26 @@
-import { useEffect, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
-// Material UI Icons matching your layout perfectly
-import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
 import BadgeRoundedIcon from "@mui/icons-material/BadgeRounded";
-import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import DesktopWindowsRoundedIcon from "@mui/icons-material/DesktopWindowsRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 
+/**
+ * Left navigation for the admin dashboard area.
+ *
+ * @param {{isOpen?: boolean}} props sidebar open state
+ * @returns {JSX.Element} the dashboard sidebar
+ */
 export default function Sidebar({ isOpen = true }) {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("Admin User");
 
-  useEffect(() => {
-    try {
-      const storedUser = sessionStorage.getItem("amsUser");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        const nameToDisplay = parsedUser.full_name || parsedUser.name || parsedUser.username;
-        if (nameToDisplay) {
-          setUsername(nameToDisplay);
-        }
-      }
-    } catch (error) {
-      console.error("Error parsing user data:", error);
-    }
-  }, []);
+  const navClassName = ({ isActive }) => (isActive ? "nav-item active" : "nav-item");
 
   const handleLogout = () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
+
     if (confirmLogout) {
       sessionStorage.removeItem("amsUser");
       sessionStorage.removeItem("amsToken");
@@ -37,34 +29,40 @@ export default function Sidebar({ isOpen = true }) {
   };
 
   return (
-(Add Asset_assignmnets)
+    <aside className={`sidebar-container ${isOpen ? "" : "sidebar-closed"}`}>
+      <div className="sidebar-logo-header">
+        <div className="hexagon-logo" aria-hidden="true" />
+        <span className="brand-text">AMS</span>
+      </div>
 
-      {/* 2. Dark Blue Navigation Section */}
       <div className="sidebar-dark-body">
-        {/* Your 4 original links with explicit custom text font scaling */}
         <nav className="sidebar-links-menu">
-          <NavLink to="/admin/dashboard" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          <NavLink to="/admin/dashboard" className={navClassName}>
             <DashboardRoundedIcon className="menu-icon" />
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink to="/admin/employees" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          <NavLink to="/admin/employees" className={navClassName}>
             <BadgeRoundedIcon className="menu-icon" />
             <span>Employees</span>
           </NavLink>
 
-          <NavLink to="/admin/users" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          <NavLink to="/admin/users" className={navClassName}>
             <PeopleAltRoundedIcon className="menu-icon" />
             <span>Users</span>
           </NavLink>
 
-          <NavLink to="/admin/assets" className={({ isActive }) => isActive ? "nav-item active" : "nav-item"}>
+          <NavLink to="/admin/assets" className={navClassName}>
             <DesktopWindowsRoundedIcon className="menu-icon" />
             <span>Assets</span>
           </NavLink>
+
+          <NavLink to="/admin/asset_assignments" className={navClassName}>
+            <AssignmentRoundedIcon className="menu-icon" />
+            <span>Asset Assignments</span>
+          </NavLink>
         </nav>
 
-        {/* Bottom Logout Button */}
         <button className="sidebar-logout-action" type="button" onClick={handleLogout}>
           <LogoutRoundedIcon className="menu-icon" />
           <span>Logout</span>
