@@ -55,7 +55,7 @@ export default function Employees() {
         employee.full_name,
         employee.department,
         employee.designation
-      ].some((value) => value.toLowerCase().includes(query))
+      ].some((value) => value?.toLowerCase().includes(query))
     );
   }, [employees, search]);
 
@@ -196,6 +196,7 @@ export default function Employees() {
               <th>Address</th>
               <th>Status</th>
               <th>Created At</th>
+              <th>Updated At</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -203,7 +204,7 @@ export default function Employees() {
           <tbody>
             {employeesLoading && (
               <tr>
-                <td className="empty-table" colSpan="9">
+                <td className="empty-table" colSpan="11">
                   Loading employees...
                 </td>
               </tr>
@@ -224,6 +225,7 @@ export default function Employees() {
                     </span>
                   </td>
                   <td>{employee.created_at || "-"}</td>
+                  <td>{employee.updated_at || "-"}</td>
                   <td>
                     <div className="row-actions">
                       <button
@@ -252,7 +254,7 @@ export default function Employees() {
 
             {!employeesLoading && employeesError && (
               <tr>
-                <td className="empty-table error-text" colSpan="9">
+                <td className="empty-table error-text" colSpan="11">
                   {employeesError}
                 </td>
               </tr>
@@ -260,7 +262,7 @@ export default function Employees() {
 
             {!employeesLoading && !employeesError && filteredEmployees.length === 0 && (
               <tr>
-                <td className="empty-table" colSpan="9">
+                <td className="empty-table" colSpan="11">
                   No employees match your search.
                 </td>
               </tr>

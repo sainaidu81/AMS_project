@@ -1,4 +1,6 @@
-/* Shared global reset used by the AMS frontend. */
+/* ==========================================================================
+   1. GLOBAL RESET & BASE STYLES
+   ========================================================================== */
 * {
   margin: 0;
   padding: 0;
@@ -11,7 +13,9 @@ body {
   background: #f4f6f8;
 }
 
-/* Full-screen login background scoped to the login page so dashboards can use their own layouts later. */
+/* ==========================================================================
+   2. LOGIN PAGE & GLASS-STYLE CARD
+   ========================================================================== */
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -21,7 +25,6 @@ body {
   background: linear-gradient(to right, #0f172a, #1e3a8a);
 }
 
-/* Glass-style login card adapted from the provided design. */
 .login-box {
   width: min(100%, 370px);
   padding: 35px;
@@ -100,13 +103,13 @@ body {
   color: #dbeafe;
   cursor: pointer;
 }
+
 .toggle-password svg {
   display: block;
   top: 50%;
   transform: translateY(-50%);
   align-items: center;
   justify-content: center;
-
 }
 
 .toggle-password:hover,
@@ -161,81 +164,507 @@ body {
   outline-offset: 3px;
 }
 
-.login-footer {
+.login-box .login-footer {
   text-align: center;
   margin-top: 20px;
   font-size: 13px;
   color: #d1d5db;
 }
 
+/* ==========================================================================
+   3. MAIN WORKSPACE PORTAL LAYOUT SHELL
+   ========================================================================== */
 .app-shell {
   min-height: 100vh;
   display: flex;
   background: #f4f6f8;
 }
 
-.sidebar {
-  width: 220px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 20px;
-  background: #111827;
-}
-
-.sidebar a {
-  color: #cbd5e1;
-  text-decoration: none;
-  padding: 10px;
-  border-radius: 6px;
-  transition: background 0.2s ease, color 0.2s ease;
-}
-
-.sidebar a:hover,
-.sidebar a.active {
-  background: #2563eb;
-  color: white;
-}
-
-.logout-btn {
-  margin-top: auto;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
-  background: #4f46e5;
-  color: white;
-  cursor: pointer;
-}
-
-.logout-btn:hover {
-  background: #4338ca;
-}
-
 .app-main {
   flex: 1;
   min-width: 0;
-}
-
-.app-header {
-  height: 60px;
   display: flex;
-  align-items: center;
-  padding: 0 24px;
-  background: #1e293b;
-}
-
-.app-brand {
-  color: white;
-  text-decoration: none;
-  font-size: 24px;
-  font-weight: 700;
+  flex-direction: column;
 }
 
 .app-content {
   padding: 20px;
+  flex-grow: 1;
 }
 
+/* ==========================================================================
+   4. NEW TOP NAVBAR SYSTEM (Matches simplified screenshot reference)
+   ========================================================================== */
+.app-navbar {
+  height: 70px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navbar-left .filter-btn {
+  margin-left: 8px;
+}
+
+.hamburger-btn {
+  margin-right: 12px;
+}
+
+.navbar-welcome-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+}
+
+.welcome-text {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+  padding: 0;
+}
+
+.welcome-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.navbar-search-box:hover {
+  border-color: #94a3b8;
+  background-color: #f1f5f9;
+}
+
+.navbar-search-box:focus-within {
+  border-color: #3b82f6;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.navbar-search-box .search-icon {
+  color: #64748b;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.navbar-search-box .search-input {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-size: 14px;
+  color: #1e293b;
+  min-width: 200px;
+  font-family: inherit;
+  flex: 1;
+}
+
+.navbar-search-box .search-input::placeholder {
+  color: #94a3b8;
+}
+
+.navbar-search-box .search-filter-select {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0 4px;
+  font-size: 12px;
+  color: #64748b;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.navbar-filter-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.navbar-filter-box:hover {
+  border-color: #94a3b8;
+  background-color: #f1f5f9;
+}
+
+.navbar-filter-box:focus-within {
+  border-color: #3b82f6;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.navbar-filter-box .filter-icon {
+  color: #64748b;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.navbar-filter-box .filter-input {
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-size: 14px;
+  color: #1e293b;
+  min-width: 120px;
+  font-family: inherit;
+}
+
+.navbar-filter-box .filter-input::placeholder {
+  color: #94a3b8;
+}
+
+.navbar-icon-btn {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.navbar-icon-btn:hover {
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.navbar-page-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.navbar-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.navbar-search-wrapper {
+  position: relative;
+  width: 280px;
+}
+
+.navbar-search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #334155;
+  outline: none;
+  background-color: #ffffff;
+  transition: border-color 0.2s;
+}
+
+.navbar-search-input:focus {
+  border-color: #023e8a;
+}
+
+.navbar-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.search-box-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: 1.25rem !important;
+  pointer-events: none;
+}
+
+.notification-badge-btn {
+  position: relative;
+}
+
+.notification-btn {
+  position: relative;
+}
+
+.hamburger-btn {
+  margin-right: 8px;
+}
+
+.badge-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+}
+
+.navbar-divider {
+  width: 1px;
+  height: 32px;
+  background-color: #e2e8f0;
+  margin: 0 4px;
+}
+
+.navbar-user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.navbar-user-profile:hover {
+  background-color: #f8fafc;
+}
+
+.profile-avatar-icon {
+  font-size: 2.2rem !important;
+  color: #031d44;
+}
+
+.user-profile-details {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.profile-fullname {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.profile-role-title {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.profile-dropdown-arrow {
+  color: #64748b;
+  font-size: 1.25rem !important;
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.profile-dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.navbar-profile-dropdown-card {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 160px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 6px;
+  z-index: 100;
+  animation: fadeInNavbarDropdown 0.15s ease-out;
+}
+
+.dropdown-action-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: #ef4444;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.dropdown-action-item:hover {
+  background-color: #fee2e2;
+}
+
+.dropdown-action-icon {
+  font-size: 1.2rem !important;
+}
+
+@keyframes fadeInNavbarDropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   5. NEW PORTAL SIDEBAR SYSTEM (Matches sidebar reference)
+   ========================================================================== */
+.sidebar-container {
+  width: 260px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, width 0.3s ease;
+}
+
+.sidebar-container.sidebar-closed {
+  transform: translateX(-100%);
+  width: 260px;
+  position: absolute;
+  left: 0;
+  z-index: 50;
+}
+
+.sidebar-logo-header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 14px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.brand-text {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}
+
+.hexagon-logo {
+  width: 28px;
+  height: 28px;
+  border: 3.5px solid #023e8a;
+  border-radius: 6px;
+  transform: rotate(45deg);
+}
+
+.sidebar-dark-body {
+  flex-grow: 1;
+  background-color: #031d44;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-links-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 1.15rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.menu-icon {
+  font-size: 1.4rem !important;
+  opacity: 0.85;
+}
+
+.nav-item.active {
+  color: #ffffff !important;
+  background-color: #0056b3 !important;
+}
+
+.nav-item.active .menu-icon {
+  opacity: 1;
+}
+
+.sidebar-logout-action {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  color: #fca5a5;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  margin-top: auto;
+  transition: background 0.2s;
+}
+
+.sidebar-logout-action:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* ==========================================================================
+   6. DASHBOARD MAIN CONTENT ELEMENTS
+   ========================================================================== */
 .dashboard-container {
   min-height: calc(100vh - 100px);
   padding: 20px;
@@ -290,6 +719,9 @@ body {
   line-height: 1.35;
 }
 
+/* ==========================================================================
+   7. ENTITY PAGES CONFIGURATION & ACTIONS TOOLBARS
+   ========================================================================== */
 .users-page,
 .employees-page,
 .assets-page,
@@ -375,6 +807,9 @@ body {
   font: inherit;
 }
 
+/* ==========================================================================
+   8. DATA TABLES AND RESPONSIVE CARD SCROLLERS
+   ========================================================================== */
 .table-card {
   overflow-x: auto;
   border-radius: 8px;
@@ -418,16 +853,6 @@ body {
   background: #f9fafb;
 }
 
-.role-pill {
-  display: inline-flex;
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: #dbeafe;
-  color: #1e40af;
-  font-size: 12px;
-  font-weight: 700;
-}
-
 .row-actions {
   display: flex;
   gap: 8px;
@@ -469,6 +894,23 @@ body {
   color: #6b7280;
 }
 
+.error-text {
+  color: #b91c1c;
+}
+
+/* ==========================================================================
+   9. STATUS BADGES & UTILITY PILLS
+   ========================================================================== */
+.role-pill {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .status-pill {
   display: inline-flex;
   padding: 4px 8px;
@@ -504,10 +946,9 @@ body {
   color: #374151;
 }
 
-.error-text {
-  color: #b91c1c;
-}
-
+/* ==========================================================================
+   10. POPUP MODAL ARCHITECTURES
+   ========================================================================== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
