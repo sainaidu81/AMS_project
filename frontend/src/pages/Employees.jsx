@@ -159,16 +159,11 @@ export default function Employees() {
   return (
     <div className="employees-page">
       <div className="page-heading">
-        <div>
-          <p className="dashboard-kicker">Admin</p>
-          <h1>Employees</h1>
-        </div>
-
         <button className="primary-action" type="button" onClick={openAddForm}>
-          <AddRoundedIcon fontSize="small" />
+         <AddRoundedIcon fontSize="small" />
           Add Employee
-        </button>
-      </div>
+       </button>
+        </div>
 
       <div className="users-toolbar">
         <label className="search-field">

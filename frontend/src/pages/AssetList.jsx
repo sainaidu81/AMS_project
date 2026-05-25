@@ -183,16 +183,15 @@ export default function AssetList() {
   return (
     <div className="assets-page">
       <div className="page-heading">
-        <div>
-          <p className="dashboard-kicker">Admin</p>
-          <h1>Assets</h1>
-        </div>
-
-        <button className="primary-action" type="button" onClick={openAddForm}>
-          <AddRoundedIcon fontSize="small" />
-          Add Asset
-        </button>
-      </div>
+  <button
+    className="primary-action"
+    type="button"
+    onClick={openAddForm}
+  >
+    <AddRoundedIcon fontSize="small" />
+    Add Asset
+  </button>
+</div>
 
       <div className="users-toolbar">
         <label className="search-field">

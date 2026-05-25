@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-// Material UI Icons matching your simplified request perfectly
+// Material UI Icons
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import FilterListRoundedIcon from "@mui/icons-material/FilterListRounded";
 import NotificationsNoneRoundedIcon from "@mui/icons-material/NotificationsNoneRounded";
@@ -10,9 +10,22 @@ import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownR
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 
 export default function Navbar({ sidebarOpen, setSidebarOpen }) {
+
   const navigate = useNavigate();
+  const location = useLocation();
   const dropdownRef = useRef(null);
-  
+
+  // Dynamic Page Titles
+  const pageTitles = {
+    "/admin/dashboard": "Dashboard",
+    "/admin/employees": "Employees",
+    "/admin/users": "Users",
+    "/admin/assets": "Assets",
+    "/admin/asset_assignments": "Asset Assignments",
+  };
+
+  const currentPage = pageTitles[location.pathname] || "Dashboard";
+
   const [username, setUsername] = useState("Admin User");
   const [role, setRole] = useState("IT Administrator");
   const [showDropdown, setShowDropdown] = useState(false);
@@ -22,11 +35,19 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
   useEffect(() => {
     try {
       const storedUser = sessionStorage.getItem("amsUser");
+
       if (storedUser) {
         const parsedUser = JSON.parse(storedUser);
-        const nameToDisplay = parsedUser.full_name || parsedUser.name || parsedUser.username;
-        const roleToDisplay = parsedUser.role || parsedUser.designation;
-        
+
+        const nameToDisplay =
+          parsedUser.full_name ||
+          parsedUser.name ||
+          parsedUser.username;
+
+        const roleToDisplay =
+          parsedUser.role ||
+          parsedUser.designation;
+
         if (nameToDisplay) setUsername(nameToDisplay);
         if (roleToDisplay) setRole(roleToDisplay);
       }
@@ -34,54 +55,74 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
       console.error("Error parsing user context in navbar:", error);
     }
 
-    // Close user dropdown if clicking outside of it
+    // Close dropdown outside click
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
         setShowDropdown(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
   }, []);
 
   const handleLogout = () => {
-    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    const confirmLogout = window.confirm(
+      "Are you sure you want to logout?"
+    );
+
     if (confirmLogout) {
       sessionStorage.removeItem("amsUser");
       sessionStorage.removeItem("amsToken");
+
       navigate("/", { replace: true });
     }
   };
 
   return (
     <header className="app-navbar">
-      
-      {/* Left Side: Hamburger Menu, Welcome Section, and Search Box */}
+
+      {/* Left Side */}
       <div className="navbar-left">
-        <button 
-          className="navbar-icon-btn hamburger-btn" 
-          type="button" 
+
+        <button
+          className="navbar-icon-btn hamburger-btn"
+          type="button"
           aria-label="Menu"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           <MenuRoundedIcon />
         </button>
-        
+
+        {/* Dynamic Page Name */}
         <div className="navbar-welcome-section">
-          <p className="welcome-text">Welcome,</p>
-          <h3 className="welcome-username" title={username}>{username}</h3>
+          <h3 className="welcome-username">
+            {currentPage}
+          </h3>
         </div>
-        
+
+        {/* Search Box */}
         <div className="navbar-search-box">
+
           <FilterListRoundedIcon className="search-icon" />
-          <input 
-            type="text" 
+
+          <input
+            type="text"
             className="search-input"
             placeholder="Search by Employee ID, Asset ID, User..."
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
-          <select 
+
+          <select
             className="search-filter-select"
             value={searchType}
             onChange={(e) => setSearchType(e.target.value)}
@@ -91,39 +132,60 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
             <option value="asset">Asset ID</option>
             <option value="user">User</option>
           </select>
+
         </div>
       </div>
-      
-      {/* Right Side: Notification Bell and Login user context details with dynamic dropdown menu */}
+
+      {/* Right Side */}
       <div className="navbar-right" ref={dropdownRef}>
-        <button className="navbar-icon-btn notification-btn" type="button" aria-label="Notifications">
+
+        <button
+          className="navbar-icon-btn notification-btn"
+          type="button"
+          aria-label="Notifications"
+        >
           <NotificationsNoneRoundedIcon />
         </button>
-        <div 
-          className="navbar-user-profile" 
+
+        <div
+          className="navbar-user-profile"
           onClick={() => setShowDropdown(!showDropdown)}
           role="button"
           tabIndex={0}
         >
+
           <AccountCircleRoundedIcon className="profile-avatar-icon" />
-          
+
           <div className="user-profile-details">
-            <span className="profile-fullname">{username}</span>
-            <span className="profile-role-title">{role}</span>
+            <span className="profile-fullname">
+              {username}
+            </span>
+
+            <span className="profile-role-title">
+              {role}
+            </span>
           </div>
-          
-          <KeyboardArrowDownRoundedIcon 
-            className={`profile-dropdown-arrow ${showDropdown ? 'rotated' : ''}`} 
+
+          <KeyboardArrowDownRoundedIcon
+            className={`profile-dropdown-arrow ${
+              showDropdown ? "rotated" : ""
+            }`}
           />
         </div>
 
-        {/* Dropdown Action Card */}
+        {/* Dropdown */}
         {showDropdown && (
           <div className="navbar-profile-dropdown-card">
-            <button className="dropdown-action-item" type="button" onClick={handleLogout}>
+
+            <button
+              className="dropdown-action-item"
+              type="button"
+              onClick={handleLogout}
+            >
               <LogoutRoundedIcon className="dropdown-action-icon" />
               <span>Logout</span>
             </button>
+
           </div>
         )}
 

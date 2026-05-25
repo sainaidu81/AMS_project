@@ -46,11 +46,6 @@ const toDateTimeLocal = (value) => {
   return value.replace(" ", "T").slice(0, 16);
 };
 
-/**
- * Admin asset assignment management screen backed by the asset assignments API.
- *
- * @returns {JSX.Element} the asset assignments management page
- */
 export default function AssetAssignmentsList() {
   const {
     assetAssignments,
@@ -60,6 +55,7 @@ export default function AssetAssignmentsList() {
     employees,
     refreshAdminData
   } = useAdminData();
+
   const [search, setSearch] = useState("");
   const [form, setForm] = useState(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
@@ -86,6 +82,7 @@ export default function AssetAssignmentsList() {
     const { name, value } = event.target;
 
     setFormError("");
+
     setForm({
       ...form,
       [name]: value
@@ -109,11 +106,13 @@ export default function AssetAssignmentsList() {
       return_by_emp_id: assignment.return_by_emp_id || "",
       asset_condition: assignment.asset_condition || "",
       issue_found:
-        assignment.issue_found === null || assignment.issue_found === undefined
+        assignment.issue_found === null ||
+        assignment.issue_found === undefined
           ? ""
           : String(assignment.issue_found),
       issue_comment: assignment.issue_comment || ""
     });
+
     setEditingAssignmentId(assignment.id);
     setFormError("");
     setShowForm(true);
@@ -135,12 +134,20 @@ export default function AssetAssignmentsList() {
       return_date: form.return_date,
       return_by_emp_id: form.return_by_emp_id.trim(),
       asset_condition: form.asset_condition.trim(),
-      issue_found: form.issue_found === "" ? "" : form.issue_found === "true",
+      issue_found:
+        form.issue_found === ""
+          ? ""
+          : form.issue_found === "true",
       issue_comment: form.issue_comment.trim()
     };
 
-    if (!normalizedForm.service_tag || !normalizedForm.employee_id) {
-      setFormError("Service tag and employee ID are required.");
+    if (
+      !normalizedForm.service_tag ||
+      !normalizedForm.employee_id
+    ) {
+      setFormError(
+        "Service tag and employee ID are required."
+      );
       return;
     }
 
@@ -148,7 +155,10 @@ export default function AssetAssignmentsList() {
 
     try {
       if (editingAssignmentId) {
-        await updateAssetAssignment(editingAssignmentId, normalizedForm);
+        await updateAssetAssignment(
+          editingAssignmentId,
+          normalizedForm
+        );
       } else {
         await createAssetAssignment(normalizedForm);
       }
@@ -156,7 +166,10 @@ export default function AssetAssignmentsList() {
       await refreshAdminData();
       closeForm();
     } catch (err) {
-      setFormError(err.message || "Could not save asset assignment.");
+      setFormError(
+        err.message ||
+          "Could not save asset assignment."
+      );
     } finally {
       setIsSaving(false);
     }
@@ -177,19 +190,24 @@ export default function AssetAssignmentsList() {
       await deleteAssetAssignment(assignment.id);
       await refreshAdminData();
     } catch (err) {
-      setActionError(err.message || "Could not delete asset assignment.");
+      setActionError(
+        err.message ||
+          "Could not delete asset assignment."
+      );
     }
   };
 
   return (
     <div className="asset-assignments-page">
-      <div className="page-heading">
-        <div>
-          <p className="dashboard-kicker">Admin</p>
-          <h1>Asset Assignments</h1>
-        </div>
 
-        <button className="primary-action" type="button" onClick={openAddForm}>
+      {/* Removed Admin & Asset Assignments Heading */}
+
+      <div className="page-heading">
+        <button
+          className="primary-action"
+          type="button"
+          onClick={openAddForm}
+        >
           <AddRoundedIcon fontSize="small" />
           Add Assignment
         </button>
@@ -198,19 +216,25 @@ export default function AssetAssignmentsList() {
       <div className="users-toolbar">
         <label className="search-field">
           <SearchRoundedIcon fontSize="small" />
+
           <input
             type="search"
             placeholder="Search assignment details"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
           />
         </label>
       </div>
 
-      {actionError && <p className="form-error">{actionError}</p>}
+      {actionError && (
+        <p className="form-error">{actionError}</p>
+      )}
 
       <div className="table-card">
         <table className="admin-table asset-assignments-table">
+
           <thead>
             <tr>
               <th>ID</th>
@@ -229,6 +253,7 @@ export default function AssetAssignmentsList() {
           </thead>
 
           <tbody>
+
             {assetAssignmentsLoading && (
               <tr>
                 <td className="empty-table" colSpan="12">
@@ -243,30 +268,51 @@ export default function AssetAssignmentsList() {
                   <td>{assignment.id}</td>
                   <td>{assignment.service_tag}</td>
                   <td>{assignment.employee_id}</td>
-                  <td>{assignment.issued_by_emp_id || "-"}</td>
+                  <td>
+                    {assignment.issued_by_emp_id || "-"}
+                  </td>
                   <td>{assignment.issued_date || "-"}</td>
                   <td>{assignment.host_name || "-"}</td>
                   <td>{assignment.return_date || "-"}</td>
-                  <td>{assignment.return_by_emp_id || "-"}</td>
-                  <td>{assignment.asset_condition || "-"}</td>
                   <td>
-                    {assignment.issue_found === null || assignment.issue_found === undefined ? (
+                    {assignment.return_by_emp_id || "-"}
+                  </td>
+                  <td>
+                    {assignment.asset_condition || "-"}
+                  </td>
+
+                  <td>
+                    {assignment.issue_found === null ||
+                    assignment.issue_found === undefined ? (
                       "-"
                     ) : (
-                      <span className={assignment.issue_found ? "status-pill" : "status-pill active"}>
-                        {assignment.issue_found ? "Yes" : "No"}
+                      <span
+                        className={
+                          assignment.issue_found
+                            ? "status-pill"
+                            : "status-pill active"
+                        }
+                      >
+                        {assignment.issue_found
+                          ? "Yes"
+                          : "No"}
                       </span>
                     )}
                   </td>
-                  <td>{assignment.issue_comment || "-"}</td>
+
+                  <td>
+                    {assignment.issue_comment || "-"}
+                  </td>
+
                   <td>
                     <div className="row-actions">
+
                       <button
                         className="icon-action edit-action"
                         type="button"
-                        onClick={() => openEditForm(assignment)}
-                        aria-label={`Edit assignment ${assignment.id}`}
-                        title="Edit"
+                        onClick={() =>
+                          openEditForm(assignment)
+                        }
                       >
                         <EditRoundedIcon fontSize="small" />
                       </button>
@@ -274,42 +320,43 @@ export default function AssetAssignmentsList() {
                       <button
                         className="icon-action delete-action"
                         type="button"
-                        onClick={() => handleDeleteAssignment(assignment)}
-                        aria-label={`Delete assignment ${assignment.id}`}
-                        title="Delete assignment"
+                        onClick={() =>
+                          handleDeleteAssignment(
+                            assignment
+                          )
+                        }
                       >
                         <DeleteRoundedIcon fontSize="small" />
                       </button>
+
                     </div>
                   </td>
                 </tr>
               ))}
 
-            {!assetAssignmentsLoading && assetAssignmentsError && (
-              <tr>
-                <td className="empty-table error-text" colSpan="12">
-                  {assetAssignmentsError}
-                </td>
-              </tr>
-            )}
-
-            {!assetAssignmentsLoading && !assetAssignmentsError && filteredAssignments.length === 0 && (
-              <tr>
-                <td className="empty-table" colSpan="12">
-                  No asset assignments match your search.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
 
       {showForm && (
-        <div className="modal-backdrop" role="presentation">
-          <div className="modal-panel assignment-modal" role="dialog" aria-modal="true">
-            <h2>{editingAssignmentId ? "Edit Assignment" : "Add Assignment"}</h2>
+        <div
+          className="modal-backdrop"
+          role="presentation"
+        >
+          <div
+            className="modal-panel assignment-modal"
+            role="dialog"
+            aria-modal="true"
+          >
+
+            <h2>
+              {editingAssignmentId
+                ? "Edit Assignment"
+                : "Add Assignment"}
+            </h2>
 
             <div className="form-grid">
+
               <label>
                 Service Tag
                 <input
@@ -330,101 +377,37 @@ export default function AssetAssignmentsList() {
                 />
               </label>
 
-              <label>
-                Issued By Employee ID
-                <input
-                  name="issued_by_emp_id"
-                  list="assignment-employee-ids"
-                  value={form.issued_by_emp_id}
-                  onChange={handleChange}
-                />
-              </label>
-
-              <label>
-                Issue Date
-                <input
-                  name="issued_date"
-                  type="datetime-local"
-                  value={form.issued_date}
-                  onChange={handleChange}
-                />
-              </label>
-
-              <label>
-                Return Date
-                <input
-                  name="return_date"
-                  type="datetime-local"
-                  value={form.return_date}
-                  onChange={handleChange}
-                />
-              </label>
-
-              <label>
-                Return By Employee ID
-                <input
-                  name="return_by_emp_id"
-                  list="assignment-employee-ids"
-                  value={form.return_by_emp_id}
-                  onChange={handleChange}
-                />
-              </label>
-
-              <label>
-                Issue Found
-                <select name="issue_found" value={form.issue_found} onChange={handleChange}>
-                  <option value="">Blank</option>
-                  <option value="false">No</option>
-                  <option value="true">Yes</option>
-                </select>
-              </label>
-
-              <label className="full-span">
-                Asset Condition
-                <input
-                  name="asset_condition"
-                  value={form.asset_condition}
-                  onChange={handleChange}
-                />
-              </label>
-
-              <label className="full-span">
-                Issue Comment
-                <input
-                  name="issue_comment"
-                  value={form.issue_comment}
-                  onChange={handleChange}
-                />
-              </label>
             </div>
 
-            <datalist id="assignment-service-tags">
-              {assets.map((asset) => (
-                <option key={asset.service_tag} value={asset.service_tag} />
-              ))}
-            </datalist>
-
-            <datalist id="assignment-employee-ids">
-              {employees.map((employee) => (
-                <option key={employee.employee_id} value={employee.employee_id} />
-              ))}
-            </datalist>
-
-            {formError && <p className="form-error">{formError}</p>}
+            {formError && (
+              <p className="form-error">{formError}</p>
+            )}
 
             <div className="modal-actions">
-              <button className="secondary-action" type="button" onClick={closeForm}>
+
+              <button
+                className="secondary-action"
+                type="button"
+                onClick={closeForm}
+              >
                 Cancel
               </button>
+
               <button
                 className="primary-action"
                 type="button"
                 onClick={saveAssignment}
                 disabled={isSaving}
               >
-                {isSaving ? "Saving..." : editingAssignmentId ? "Update" : "Save"}
+                {isSaving
+                  ? "Saving..."
+                  : editingAssignmentId
+                  ? "Update"
+                  : "Save"}
               </button>
+
             </div>
+
           </div>
         </div>
       )}

@@ -1,10 +1,9 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
 import BadgeRoundedIcon from "@mui/icons-material/BadgeRounded";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import DesktopWindowsRoundedIcon from "@mui/icons-material/DesktopWindowsRounded";
-import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
 
 /**
@@ -14,29 +13,20 @@ import PeopleAltRoundedIcon from "@mui/icons-material/PeopleAltRounded";
  * @returns {JSX.Element} the dashboard sidebar
  */
 export default function Sidebar({ isOpen = true }) {
-  const navigate = useNavigate();
 
-  const navClassName = ({ isActive }) => (isActive ? "nav-item active" : "nav-item");
-
-  const handleLogout = () => {
-    const confirmLogout = window.confirm("Are you sure you want to logout?");
-
-    if (confirmLogout) {
-      sessionStorage.removeItem("amsUser");
-      sessionStorage.removeItem("amsToken");
-      navigate("/", { replace: true });
-    }
-  };
+  const navClassName = ({ isActive }) =>
+    isActive ? "nav-item active" : "nav-item";
 
   return (
     <aside className={`sidebar-container ${isOpen ? "" : "sidebar-closed"}`}>
       <div className="sidebar-logo-header">
         <div className="hexagon-logo" aria-hidden="true" />
-        <span className="brand-text">AMS</span>
+        <span className="brand-text">AMS project</span>
       </div>
 
       <div className="sidebar-dark-body">
         <nav className="sidebar-links-menu">
+
           <NavLink to="/admin/dashboard" className={navClassName}>
             <DashboardRoundedIcon className="menu-icon" />
             <span>Dashboard</span>
@@ -61,12 +51,8 @@ export default function Sidebar({ isOpen = true }) {
             <AssignmentRoundedIcon className="menu-icon" />
             <span>Asset Assignments</span>
           </NavLink>
-        </nav>
 
-        <button className="sidebar-logout-action" type="button" onClick={handleLogout}>
-          <LogoutRoundedIcon className="menu-icon" />
-          <span>Logout</span>
-        </button>
+        </nav>
       </div>
     </aside>
   );
