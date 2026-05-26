@@ -15,9 +15,7 @@ Primary local files to inspect first:
 
 - `backend/src/main/java/util/DatabaseConnection.java`
 - `backend/src/main/java/controller/LoginHandler.java`
-- `DB/AMS_table_creation.sql`
-- `DB/AlterTable.sql`
-- `DB/AMSBackup`
+- `DB/schema.sql`
 
 ## Current Project Facts
 
