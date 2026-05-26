@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AdminDataContext from "./AdminDataStore";
 import {
@@ -15,6 +15,7 @@ import {
  * @returns {JSX.Element} the admin data provider
  */
 export function AdminDataProvider({ children }) {
+  const hasLoadedInitialData = useRef(false);
   const [employees, setEmployees] = useState([]);
   const [users, setUsers] = useState([]);
   const [assets, setAssets] = useState([]);
@@ -94,39 +95,13 @@ export function AdminDataProvider({ children }) {
   }, [refreshEmployees, refreshUsers, refreshAssets, refreshAssetAssignments]);
 
   useEffect(() => {
-    let shouldUpdate = true;
+    if (hasLoadedInitialData.current) {
+      return;
+    }
 
-    Promise.all([getEmployees(), getUsers(), getAssets(), getAssetAssignments()])
-      .then(([employeeData, userData, assetData, assignmentData]) => {
-        if (shouldUpdate) {
-          setEmployees(employeeData.employees || []);
-          setUsers(userData.users || []);
-          setAssets(assetData.assets || []);
-          setAssetAssignments(assignmentData.asset_assignments || []);
-        }
-      })
-      .catch((err) => {
-        if (shouldUpdate) {
-          const message = err.message || "Could not load admin data.";
-          setEmployeesError(message);
-          setUsersError(message);
-          setAssetsError(message);
-          setAssetAssignmentsError(message);
-        }
-      })
-      .finally(() => {
-        if (shouldUpdate) {
-          setEmployeesLoading(false);
-          setUsersLoading(false);
-          setAssetsLoading(false);
-          setAssetAssignmentsLoading(false);
-        }
-      });
-
-    return () => {
-      shouldUpdate = false;
-    };
-  }, []);
+    hasLoadedInitialData.current = true;
+    refreshAdminData();
+  }, [refreshAdminData]);
 
   const value = useMemo(
     () => ({

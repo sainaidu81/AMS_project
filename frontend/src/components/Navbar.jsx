@@ -67,10 +67,6 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
           <MenuRoundedIcon />
         </button>
         
-        <div className="navbar-welcome-section">
-          <p className="welcome-text">Welcome,</p>
-          <h3 className="welcome-username" title={username}>{username}</h3>
-        </div>
         
         <div className="navbar-search-box">
           <FilterListRoundedIcon className="search-icon" />

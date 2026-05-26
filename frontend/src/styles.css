@@ -22,7 +22,9 @@ body {
   justify-content: center;
   align-items: center;
   padding: 24px;
-  background: linear-gradient(to right, #0f172a, #1e3a8a);
+  background:
+    linear-gradient(rgba(248, 250, 252, 0.16), rgba(15, 23, 42, 0.18)),
+    url("/login-background.png") center / cover no-repeat;
 }
 
 .login-box {
@@ -32,7 +34,7 @@ body {
   background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(10px);
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
-  color: white;
+  color: rgb(98, 83, 83);
 }
 
 .login-logo {
@@ -68,7 +70,7 @@ body {
   border-radius: 10px;
   font-size: 15px;
   background: rgba(255, 255, 255, 0.2);
-  color: white;
+  color: #111010;
 }
 
 .input-box input::placeholder {

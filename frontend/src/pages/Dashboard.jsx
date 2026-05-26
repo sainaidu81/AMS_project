@@ -20,10 +20,16 @@ export default function Dashboard() {
   const {
     employees,
     users,
+    assets,
+    assetAssignments, // Added asset assignments array from context
     employeesLoading,
     usersLoading,
+    assetsLoading,
+    assetAssignmentsLoading, // Added asset assignments loading state
     employeesError,
-    usersError
+    usersError,
+    assetsError,
+    assetAssignmentsError // Added asset assignments error state
   } = useAdminData();
 
   const activeEmployeeCount = useMemo(
@@ -38,8 +44,10 @@ export default function Dashboard() {
         <h1>Welcome{user?.full_name ? `, ${user.full_name}` : ""}</h1>
       </div>
 
-      {(employeesError || usersError) && (
-        <p className="form-error">{employeesError || usersError}</p>
+      {(employeesError || usersError || assetsError || assetAssignmentsError) && (
+        <p className="form-error">
+          {employeesError || usersError || assetsError || assetAssignmentsError}
+        </p>
       )}
 
       <div className="dashboard-cards">
@@ -54,6 +62,21 @@ export default function Dashboard() {
           <span>Users</span>
           <strong className={usersLoading ? "loading-count" : ""}>
             {usersLoading ? "Loading..." : users.length}
+          </strong>
+        </article>
+
+        <article className="dashboard-card">
+          <span>Assets</span>
+          <strong className={assetsLoading ? "loading-count" : ""}>
+            {assetsLoading ? "Loading..." : (assets?.length || 0)}
+          </strong>
+        </article>
+
+        {/* New Asset Assignments Card */}
+        <article className="dashboard-card">
+          <span>Asset Assignments</span>
+          <strong className={assetAssignmentsLoading ? "loading-count" : ""}>
+            {assetAssignmentsLoading ? "Loading..." : (assetAssignments?.length || 0)}
           </strong>
         </article>
       </div>

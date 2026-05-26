@@ -10,71 +10,32 @@ import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
 import { loginUser } from "../services/api";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 const MAX_PASSWORD_LENGTH = 128;
 
-/**
- * Renders the login form and submits credentials to the backend.
- *
- * @returns {JSX.Element} the login page
- */
 export default function Login() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    email: "",
-    password: ""
-  });
-
+  const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  /**
-   * Performs lightweight client-side validation before the login request is sent.
-   *
-   * @returns {string} an error message when validation fails, otherwise an empty string
-   */
   const validateForm = () => {
     const email = form.email.trim();
     const password = form.password;
 
-    if (!email) {
-      return "Email is required.";
-    }
-
-    if (!EMAIL_PATTERN.test(email)) {
-      return "Please enter a valid email address.";
-    }
-
-    if (!password) {
-      return "Password is required.";
-    }
-
+    if (!email) return "Email is required.";
+    if (!EMAIL_PATTERN.test(email)) return "Please enter a valid email address.";
+    if (!password) return "Password is required.";
     if (password.length > MAX_PASSWORD_LENGTH) {
       return `Password must be ${MAX_PASSWORD_LENGTH} characters or fewer.`;
     }
-
     return "";
   };
 
-  /**
-   * Updates the corresponding form field when an input changes.
-   *
-   * @param {React.ChangeEvent<HTMLInputElement>} e the input change event
-   */
   const handleChange = (e) => {
     setError("");
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  /**
-   * Submits the login form after validation succeeds.
-   *
-   * @param {React.FormEvent<HTMLFormElement>} e the form submit event
-   * @returns {Promise<void>}
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationError = validateForm();
@@ -85,31 +46,23 @@ export default function Login() {
     }
 
     try {
+      // Calls http://localhost:8081/login from your api.js file
       const data = await loginUser({
         email: form.email.trim(),
         password: form.password
       });
 
-      const dashboardRoute = data.dashboardPath;
-
-      if (!dashboardRoute) {
-        setError("Login successful, but no dashboard is configured for this role.");
-        return;
-      }
+      // Adjust fallback route if your backend returns data.role instead of dashboardPath
+      const dashboardRoute = data.dashboardPath || "/admin/dashboard";
 
       sessionStorage.setItem("amsUser", JSON.stringify(data.user));
       sessionStorage.setItem("amsToken", data.token);
       navigate(dashboardRoute, { replace: true });
     } catch (err) {
-      alert(err.message || "Error connecting to backend");
+      setError(err.message || "Invalid credentials or backend connection failure.");
     }
   };
 
-  /**
-   * Shows the office-managed password recovery guidance.
-   *
-   * @param {React.MouseEvent<HTMLAnchorElement>} e the link click event
-   */
   const handleForgotPassword = (e) => {
     e.preventDefault();
     alert("Please contact your AMS administrator to reset your password.");
