@@ -150,20 +150,15 @@ export default function Users() {
   return (
     <div className="users-page">
       <div className="page-heading">
-        <div>
-          <p className="dashboard-kicker">Admin</p>
-          <h1>Users</h1>
-        </div>
-
-        <button
-          className="primary-action"
-          type="button"
-          onClick={openAddForm}
-        >
-          <AddRoundedIcon fontSize="small" />
-          Add User
-        </button>
-      </div>
+      <button
+        className="primary-action"
+        type="button"
+        onClick={openAddForm}
+     >
+      <AddRoundedIcon fontSize="small" />
+      Add User
+    </button>
+  </div>
 
       <div className="users-toolbar">
         <label className="search-field">

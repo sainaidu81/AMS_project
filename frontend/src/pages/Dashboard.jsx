@@ -40,8 +40,6 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-heading">
-        <p className="dashboard-kicker">Admin Dashboard</p>
-        <h1>Welcome{user?.full_name ? `, ${user.full_name}` : ""}</h1>
       </div>
 
       {(employeesError || usersError || assetsError || assetAssignmentsError) && (
