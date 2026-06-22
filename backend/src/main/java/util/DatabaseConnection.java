@@ -1,9 +1,10 @@
 package util;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import io.github.cdimascio.dotenv.Dotenv;
 
 /**
@@ -28,24 +29,62 @@ public class DatabaseConnection {
     private static final String URL =
             "jdbc:postgresql://" + HOST + ":" + PORT + "/" + DATABASE + "?sslmode=require";
 
+    private static HikariDataSource dataSource;
 
     /**
-     * Opens a new JDBC connection using the configured Supabase credentials.
+     * Creates a small connection pool for the Supabase pooler.
      *
-     * @return a live PostgreSQL connection
-     * @throws SQLException if configuration is missing or the connection cannot be opened
+     * @return the configured Hikari data source
      */
-    public static Connection getConnection() throws SQLException {
+    private static HikariDataSource createDataSource() throws SQLException {
         if (PASSWORD == null || PASSWORD.isBlank()) {
             throw new SQLException("SUPABASE_DB_PASSWORD is missing in .env");
         }
 
-        try {
-            Class.forName("org.postgresql.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new SQLException("PostgreSQL JDBC driver not found", e);
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(URL);
+        config.setDriverClassName("org.postgresql.Driver");
+        config.setUsername(USER);
+        config.setPassword(PASSWORD);
+        config.setMaximumPoolSize(5);
+        config.setMinimumIdle(1);
+        config.setConnectionTimeout(10_000);
+        config.setIdleTimeout(300_000);
+        config.setMaxLifetime(1_800_000);
+        config.setPoolName("ams-supabase-pool");
+
+        return new HikariDataSource(config);
+    }
+
+    private static synchronized HikariDataSource getDataSource() throws SQLException {
+        if (dataSource == null) {
+            try {
+                dataSource = createDataSource();
+                Runtime.getRuntime().addShutdownHook(new Thread(DatabaseConnection::closePool));
+            } catch (RuntimeException e) {
+                throw new SQLException("Could not initialize database connection pool", e);
+            }
         }
 
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        return dataSource;
+    }
+
+    /**
+     * Borrows a pooled JDBC connection using the configured Supabase credentials.
+     *
+     * @return a live PostgreSQL connection
+     * @throws SQLException if a connection cannot be borrowed
+     */
+    public static Connection getConnection() throws SQLException {
+        return getDataSource().getConnection();
+    }
+
+    /**
+     * Closes the connection pool when the application is shutting down.
+     */
+    public static void closePool() {
+        if (dataSource != null) {
+            dataSource.close();
+        }
     }
 }

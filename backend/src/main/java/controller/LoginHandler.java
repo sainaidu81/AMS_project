@@ -90,8 +90,6 @@ public class LoginHandler implements HttpHandler {
                 return;
             }
 
-            Connection con = DatabaseConnection.getConnection();
-
             String query = """
                     SELECT
                         u.employee_id,
@@ -106,50 +104,46 @@ public class LoginHandler implements HttpHandler {
                     WHERE u.email = ? AND e.is_active = true
                     """;
 
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, email);
-            ResultSet rs = ps.executeQuery();
-            String response;
+            try (
+                    Connection con = DatabaseConnection.getConnection();
+                    PreparedStatement ps = con.prepareStatement(query)
+            ) {
+                ps.setString(1, email);
 
-            if (rs.next()) {
-                String storedHash = rs.getString("password_hash");
-                if (storedHash != null && BCrypt.checkpw(password, storedHash)) {
-                    JSONObject user = new JSONObject();
-                    user.put("employee_id", rs.getString("employee_id"));
-                    user.put("full_name", rs.getString("full_name"));
-                    user.put("email", rs.getString("email"));
-                    String role = rs.getString("role");
-                    user.put("role", role);
-                    user.put("department", rs.getString("department"));
-                    user.put("designation", rs.getString("designation"));
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        String storedHash = rs.getString("password_hash");
+                        if (storedHash != null && BCrypt.checkpw(password, storedHash)) {
+                            JSONObject user = new JSONObject();
+                            user.put("employee_id", rs.getString("employee_id"));
+                            user.put("full_name", rs.getString("full_name"));
+                            user.put("email", rs.getString("email"));
+                            String role = rs.getString("role");
+                            user.put("role", role);
+                            user.put("department", rs.getString("department"));
+                            user.put("designation", rs.getString("designation"));
 
-                    String dashboardPath = dashboardPathForRole(role);
-                    if (dashboardPath.isEmpty()) {
-                        HttpUtils.sendJson(exchange, 403, "{\"message\":\"No dashboard is configured for this role\"}");
-                        return;
+                            String dashboardPath = dashboardPathForRole(role);
+                            if (dashboardPath.isEmpty()) {
+                                HttpUtils.sendJson(exchange, 403, "{\"message\":\"No dashboard is configured for this role\"}");
+                                return;
+                            }
+
+                            JSONObject success = new JSONObject();
+                            success.put("message", "Login successful");
+                            success.put("user", user);
+                            success.put("token", AuthUtils.issueToken(rs.getString("employee_id")));
+                            success.put("dashboardPath", dashboardPath);
+
+                            HttpUtils.sendJson(exchange, 200, success.toString());
+                        } else {
+                            HttpUtils.sendJson(exchange, 401, "{\"message\":\"Invalid credentials\"}");
+                        }
+                    } else {
+                        HttpUtils.sendJson(exchange, 401, "{\"message\":\"Invalid credentials\"}");
                     }
-
-                    JSONObject success = new JSONObject();
-                    success.put("message", "Login successful");
-                    success.put("user", user);
-                    success.put("token", AuthUtils.issueToken(rs.getString("employee_id")));
-                    success.put("dashboardPath", dashboardPath);
-
-                    response = success.toString();
-                    HttpUtils.sendJson(exchange, 200, response);
-                } else {
-                    response = "{\"message\":\"Invalid credentials\"}";
-                    HttpUtils.sendJson(exchange, 401, response);
                 }
-            } else {
-                response = "{\"message\":\"Invalid credentials\"}";
-                HttpUtils.sendJson(exchange, 401, response);
             }
-
-            rs.close();
-            ps.close();
-            con.close();
-
         } catch (Exception e) {
             e.printStackTrace();
             HttpUtils.sendJson(exchange, 500, "{\"message\":\"Login failed on server\"}");
